@@ -7,69 +7,131 @@
 
     <title>{{ config('app.name', 'DARUSO') }}</title>
 
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-light">
-    <div class="container">
-        <div class="row justify-content-center min-vh-100 align-items-center">
-            <div class="col-md-8 text-center">
-                <h1 class="display-4 fw-bold text-primary mb-3">
-                    <i class="bi bi-megaphone-fill me-2"></i>DARUSO
-                </h1>
-                <p class="lead text-muted mb-4">Digital Communication & Information Management System</p>
+    <nav class="navbar navbar-expand bg-white border-bottom">
+        <div class="container">
+            <a href="{{ route('home') }}" class="navbar-brand fw-bold text-primary">
+                <i class="bi bi-megaphone-fill me-2"></i>DARUSO
+            </a>
+            <div class="ms-auto">
+                @auth
+                    <a href="{{ route('dashboard') }}" class="btn btn-primary btn-sm">Dashboard</a>
+                @else
+                    <a href="{{ route('login') }}" class="btn btn-outline-secondary btn-sm me-2">Sign in</a>
+                    <a href="{{ route('register') }}" class="btn btn-primary btn-sm">Register</a>
+                @endauth
+            </div>
+        </div>
+    </nav>
 
-                <div class="row justify-content-center mb-4">
-                    <div class="col-md-4 mb-3">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-body">
-                                <i class="bi bi-megaphone fs-1 text-primary"></i>
-                                <h5 class="mt-2">Announcements</h5>
-                                <p class="text-muted small">Stay updated with the latest news and notices</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-body">
-                                <i class="bi bi-calendar-event fs-1 text-success"></i>
-                                <h5 class="mt-2">Events & Meetings</h5>
-                                <p class="text-muted small">View upcoming events and scheduled meetings</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-body">
-                                <i class="bi bi-exclamation-triangle fs-1 text-warning"></i>
-                                <h5 class="mt-2">Complaints</h5>
-                                <p class="text-muted small">Submit and track your complaints and requests</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="d-flex justify-content-center gap-3">
-                    <a href="{{ route('login') }}" class="btn btn-primary btn-lg">
-                        <i class="bi bi-box-arrow-in-right me-2"></i>Login
-                    </a>
-                    <a href="{{ route('register') }}" class="btn btn-outline-primary btn-lg">
-                        <i class="bi bi-person-plus me-2"></i>Register
-                    </a>
-                </div>
-
-                <p class="text-muted small mt-4">
-                    &copy; {{ date('Y') }} DARUSO. All rights reserved.
+    <main class="container py-5">
+        <div class="row justify-content-center text-center">
+            <div class="col-12 col-lg-8">
+                <h1 class="display-5 fw-bold text-primary mb-3">DARUSO</h1>
+                <p class="lead text-muted">
+                    The digital communication, information management and student engagement
+                    platform for the Daruso Students Organisation.
                 </p>
             </div>
         </div>
-    </div>
 
-    <!-- Bootstrap 5 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <div class="row g-3 mt-4">
+            <div class="col-12 col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <i class="bi bi-megaphone fs-2 text-primary"></i>
+                        <h5 class="mt-3">Announcements</h5>
+                        <p class="text-muted small mb-0">
+                            Notices published to you and to the groups you belong to — your
+                            college, programme, hostel, year or ministry.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <i class="bi bi-calendar-event fs-2 text-success"></i>
+                        <h5 class="mt-3">Events &amp; meetings</h5>
+                        <p class="text-muted small mb-0">
+                            See what is scheduled for you, with dates, venues and agendas.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <i class="bi bi-chat-left-text fs-2 text-warning"></i>
+                        <h5 class="mt-3">Complaints</h5>
+                        <p class="text-muted small mb-0">
+                            Raise an issue privately and follow its progress from submission to
+                            resolution.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <i class="bi bi-bell fs-2 text-danger"></i>
+                        <h5 class="mt-3">Notifications</h5>
+                        <p class="text-muted small mb-0">
+                            Direct messages from leadership, with read tracking so nothing is
+                            missed.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <i class="bi bi-file-earmark-text fs-2 text-info"></i>
+                        <h5 class="mt-3">Documents</h5>
+                        <p class="text-muted small mb-0">
+                            The constitution, policies, minutes and forms, available according
+                            to your access level.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <i class="bi bi-person-badge fs-2 text-secondary"></i>
+                        <h5 class="mt-3">Representatives</h5>
+                        <p class="text-muted small mb-0">
+                            Find out who represents you, resolved from the current leadership
+                            term.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @guest
+            <div class="text-center mt-5">
+                <a href="{{ route('login') }}" class="btn btn-primary btn-lg me-2">
+                    <i class="bi bi-box-arrow-in-right me-1"></i>Sign in
+                </a>
+                <a href="{{ route('register') }}" class="btn btn-outline-primary btn-lg">
+                    <i class="bi bi-person-plus me-1"></i>Register
+                </a>
+            </div>
+        @endguest
+    </main>
+
+    <footer class="border-top bg-white py-3 mt-5">
+        <div class="container text-center text-muted small">
+            &copy; {{ now()->year }} Daruso Students Organisation
+        </div>
+    </footer>
 </body>
 </html>

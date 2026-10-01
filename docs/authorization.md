@@ -69,18 +69,25 @@ Granular permissions control actions:
 3. **Policy-based** — Every resource has a policy
 4. **Audit trail** — All authorization-relevant actions are logged
 
-## Phase 1 Authorization
+## Implementation Notes
 
-In Phase 1, a simplified role system:
-- `is_leader` boolean on users (or a `role` column)
-- Basic middleware to distinguish students from leaders
-- Full permission system in Phase 2+
+The permission system is fully implemented. Two points differ from the
+original sketch and are worth calling out:
 
-## Future: Permission Architecture
+- **No `is_leader` shortcut.** Leadership is derived from a `leader_profiles`
+  row or a leadership role, and every action is still gated by an individual
+  permission. A System Administrator is not exempt: they hold `system.settings`,
+  `role.manage` and so on as ordinary permission rows, so revoking one takes
+  effect immediately.
+- **Grants cannot exceed the grantor.** Assigning a role requires holding every
+  permission that role confers (`AssignRoleRequest::canGrant()`), which blocks
+  privilege escalation through role management.
 
-```
-roles → permissions (many-to-many)
-users → roles (many-to-many)
-policies → enforce permissions per resource
-gates → enforce permissions globally
-```
+Supporting infrastructure:
+
+- `roles` → `permissions` and `users` → `roles` pivots with composite keys
+- One policy per resource, registered explicitly in `AppServiceProvider`
+- Every permission is also a Gate ability, so `@can('complaint.assign')` and
+  `$user->can('complaint.assign')` answer the same question
+- `CheckRole` / `DenyStudentRole` / `EnsurePermission` middleware gate whole
+  areas; policies still decide individual records

@@ -4,6 +4,12 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Marker profile distinguishing leaders from students.
+ *
+ * Specific positions/ministries/committees live in the organisation tables so
+ * that structure remains configurable rather than hard-coded on the user row.
+ */
 return new class extends Migration
 {
     public function up(): void

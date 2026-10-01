@@ -1,151 +1,163 @@
 <x-app-layout>
-    <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold">Student Dashboard</h2>
-            <span class="text-muted">{{ now()->format('l, F j, Y') }}</span>
-        </div>
+    @section('title', 'Dashboard')
+    @section('heading', 'Welcome, '.\Illuminate\Support\Str::before($user->name, ' '))
+    @section('subheading', $profile ? $profile->programme.' · Year '.$profile->year_of_study : 'Student dashboard')
 
-        <!-- Welcome Section -->
-        <div class="card mb-4 border-0 shadow-sm">
-            <div class="card-body">
-                <h4 class="card-title">Welcome back, {{ auth()->user()->name }}!</h4>
-                <p class="card-text text-muted">Stay updated with the latest announcements, events, and activities from DARUSO.</p>
-            </div>
-        </div>
+    @section('actions')
+        @can('create', App\Models\Complaint::class)
+            <a href="{{ route('student.complaints.create') }}" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-1"></i>Submit complaint
+            </a>
+        @endcan
+    @endsection
 
-        <!-- Stats Cards -->
-        <div class="row mb-4">
-            <div class="col-md-3 mb-3">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body text-center">
-                        <i class="bi bi-bell-fill fs-1 text-primary"></i>
-                        <h5 class="mt-2 mb-1">{{ auth()->user()->notifications()->whereNull('read_at')->count() }}</h5>
-                        <p class="text-muted mb-0">Unread Notifications</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body text-center">
-                        <i class="bi bi-megaphone-fill fs-1 text-success"></i>
-                        <h5 class="mt-2 mb-1">{{ \App\Models\Announcement::where('status', 'published')->count() }}</h5>
-                        <p class="text-muted mb-0">Announcements</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body text-center">
-                        <i class="bi bi-calendar-check-fill fs-1 text-info"></i>
-                        <h5 class="mt-2 mb-1">{{ \App\Models\Event::where('status', 'upcoming')->count() }}</h5>
-                        <p class="text-muted mb-0">Upcoming Events</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body text-center">
-                        <i class="bi bi-exclamation-triangle-fill fs-1 text-warning"></i>
-                        <h5 class="mt-2 mb-1">{{ auth()->user()->complaints()->count() }}</h5>
-                        <p class="text-muted mb-0">My Complaints</p>
-                    </div>
-                </div>
-            </div>
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <x-stat-card icon="bell" label="Unread notifications" :value="$unreadNotifications"
+                         :href="route('student.notifications.index')" tone="danger" />
         </div>
+        <div class="col-6 col-lg-3">
+            <x-stat-card icon="hourglass-split" label="Open complaints" :value="$openComplaints"
+                         :href="route('student.complaints.index')" tone="warning" />
+        </div>
+        <div class="col-6 col-lg-3">
+            <x-stat-card icon="file-earmark-text" label="Documents" :value="$documentCount"
+                         :href="route('student.documents.index')" tone="info" />
+        </div>
+        <div class="col-6 col-lg-3">
+            <x-stat-card icon="megaphone" label="Announcements" :value="$announcements->count()"
+                         :href="route('student.announcements.index')" tone="primary" />
+        </div>
+    </div>
 
-        <!-- Quick Actions -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <h5 class="mb-3">Quick Actions</h5>
-            </div>
-            <div class="col-md-4 mb-3">
-                <a href="{{ route('student.complaints.create') }}" class="text-decoration-none">
-                    <div class="card border-0 shadow-sm h-100 hover-shadow">
-                        <div class="card-body text-center">
-                            <i class="bi bi-plus-circle fs-1 text-primary"></i>
-                            <h6 class="mt-2 mb-0 text-dark">Submit a Complaint</h6>
+    <div class="row g-4">
+        <div class="col-12 col-lg-7">
+            <x-page-card icon="megaphone" title="Latest announcements">
+                <x-slot:actions>
+                    <a href="{{ route('student.announcements.index') }}" class="btn btn-sm btn-link">View all</a>
+                </x-slot:actions>
+
+                @forelse ($announcements as $announcement)
+                    <div class="border-bottom pb-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                            <a href="{{ route('student.announcements.show', $announcement) }}"
+                               class="fw-semibold text-decoration-none">
+                                {{ $announcement->title }}
+                            </a>
+                            <x-priority-badge :priority="$announcement->priority" />
+                        </div>
+                        <p class="small text-muted mb-1">
+                            {{ \Illuminate\Support\Str::limit($announcement->content, 160) }}
+                        </p>
+                        <div class="small text-muted">
+                            {{ $announcement->author?->name }}
+                            · {{ $announcement->published_at?->diffForHumans() }}
                         </div>
                     </div>
-                </a>
-            </div>
-            <div class="col-md-4 mb-3">
-                <a href="{{ route('student.announcements.index') }}" class="text-decoration-none">
-                    <div class="card border-0 shadow-sm h-100 hover-shadow">
-                        <div class="card-body text-center">
-                            <i class="bi bi-megaphone fs-1 text-success"></i>
-                            <h6 class="mt-2 mb-0 text-dark">View Announcements</h6>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-4 mb-3">
-                <a href="{{ route('student.representatives.index') }}" class="text-decoration-none">
-                    <div class="card border-0 shadow-sm h-100 hover-shadow">
-                        <div class="card-body text-center">
-                            <i class="bi bi-people fs-1 text-info"></i>
-                            <h6 class="mt-2 mb-0 text-dark">View Representatives</h6>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
+                @empty
+                    <x-empty-state icon="megaphone" title="No announcements yet"
+                                   description="Announcements addressed to you will appear here." />
+                @endforelse
+            </x-page-card>
 
-        <!-- Recent Activity -->
-        <div class="row">
-            <div class="col-md-6 mb-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-header bg-white">
-                        <h6 class="mb-0 fw-bold">Recent Announcements</h6>
-                    </div>
-                    <div class="card-body">
-                        @php
-                            $announcements = \App\Models\Announcement::where('status', 'published')
-                                ->latest()
-                                ->limit(5)
-                                ->get();
-                        @endphp
-                        @forelse($announcements as $announcement)
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div>
-                                    <h6 class="mb-1">{{ $announcement->title }}</h6>
-                                    <small class="text-muted">{{ $announcement->published_at?->diffForHumans() }}</small>
-                                </div>
-                                <span class="badge bg-{{ $announcement->priority === 'urgent' ? 'danger' : ($announcement->priority === 'high' ? 'warning' : 'info') }}">
-                                    {{ ucfirst($announcement->priority) }}
-                                </span>
+            <x-page-card class="mt-4" icon="calendar-check" title="Upcoming events">
+                <x-slot:actions>
+                    <a href="{{ route('student.events.index') }}" class="btn btn-sm btn-link">View all</a>
+                </x-slot:actions>
+
+                @forelse ($events as $event)
+                    <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                        <div>
+                            <a href="{{ route('student.events.show', $event) }}" class="text-decoration-none fw-semibold">
+                                {{ $event->title }}
+                            </a>
+                            <div class="small text-muted">
+                                {{ $event->event_date->format('D, d M Y') }} · {{ $event->venue }}
                             </div>
-                        @empty
-                            <p class="text-muted text-center mb-0">No announcements yet.</p>
-                        @endforelse
+                        </div>
+                        <x-status-badge :status="$event->status" />
                     </div>
-                </div>
-            </div>
-            <div class="col-md-6 mb-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-header bg-white">
-                        <h6 class="mb-0 fw-bold">Upcoming Events</h6>
-                    </div>
-                    <div class="card-body">
-                        @php
-                            $events = \App\Models\Event::where('status', 'upcoming')
-                                ->where('event_date', '>=', now())
-                                ->orderBy('event_date')
-                                ->limit(5)
-                                ->get();
-                        @endphp
-                        @forelse($events as $event)
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div>
-                                    <h6 class="mb-1">{{ $event->title }}</h6>
-                                    <small class="text-muted">{{ $event->event_date->format('M j, Y') }} at {{ $event->venue }}</small>
-                                </div>
+                @empty
+                    <x-empty-state icon="calendar-check" title="No upcoming events"
+                                   description="Events addressed to you will appear here." />
+                @endforelse
+            </x-page-card>
+
+            <x-page-card class="mt-4" icon="calendar-event" title="Upcoming meetings">
+                <x-slot:actions>
+                    <a href="{{ route('student.meetings.index') }}" class="btn btn-sm btn-link">View all</a>
+                </x-slot:actions>
+
+                @forelse ($meetings as $meeting)
+                    <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                        <div>
+                            <a href="{{ route('student.meetings.show', $meeting) }}" class="text-decoration-none fw-semibold">
+                                {{ $meeting->title }}
+                            </a>
+                            <div class="small text-muted">
+                                {{ $meeting->meeting_date->format('D, d M Y') }}
+                                at {{ $meeting->meeting_time->format('H:i') }} · {{ $meeting->venue }}
                             </div>
-                        @empty
-                            <p class="text-muted text-center mb-0">No upcoming events.</p>
-                        @endforelse
+                        </div>
+                        <x-status-badge :status="$meeting->status" />
                     </div>
-                </div>
-            </div>
+                @empty
+                    <x-empty-state icon="calendar-event" title="No upcoming meetings"
+                                   description="Meetings you are invited to will appear here." />
+                @endforelse
+            </x-page-card>
+        </div>
+
+        <div class="col-12 col-lg-5">
+            <x-page-card icon="bell" title="Recent notifications">
+                <x-slot:actions>
+                    <a href="{{ route('student.notifications.index') }}" class="btn btn-sm btn-link">View all</a>
+                </x-slot:actions>
+
+                @forelse ($recentNotifications as $notification)
+                    <a href="{{ route('student.notifications.show', $notification) }}"
+                       class="d-block text-decoration-none border-bottom py-2">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                            <span class="fw-semibold small {{ $notification->isRead() ? 'text-muted' : '' }}">
+                                {{ $notification->title }}
+                            </span>
+                            @unless ($notification->isRead())
+                                <span class="badge text-bg-danger">New</span>
+                            @endunless
+                        </div>
+                        <div class="small text-muted">
+                            {{ \Illuminate\Support\Str::limit($notification->message, 70) }}
+                        </div>
+                    </a>
+                @empty
+                    <x-empty-state icon="bell" title="No notifications"
+                                   description="Notifications from leadership will appear here." />
+                @endforelse
+            </x-page-card>
+
+            <x-page-card class="mt-4" icon="exclamation-triangle" title="My complaints">
+                <x-slot:actions>
+                    <a href="{{ route('student.complaints.index') }}" class="btn btn-sm btn-link">View all</a>
+                </x-slot:actions>
+
+                @forelse ($complaintStats as $status => $count)
+                    <div class="d-flex justify-content-between align-items-center py-1">
+                        <x-status-badge :status="\App\Enums\ComplaintStatus::from($status)" />
+                        <span class="fw-semibold">{{ $count }}</span>
+                    </div>
+                @empty
+                    <x-empty-state icon="inbox" title="No complaints submitted"
+                                   description="Raise a complaint and track its progress here.">
+                        @can('create', App\Models\Complaint::class)
+                            <x-slot:action>
+                                <a href="{{ route('student.complaints.create') }}" class="btn btn-sm btn-primary">
+                                    Submit a complaint
+                                </a>
+                            </x-slot:action>
+                        @endcan
+                    </x-empty-state>
+                @endforelse
+            </x-page-card>
         </div>
     </div>
 </x-app-layout>

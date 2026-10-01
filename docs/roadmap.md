@@ -1,67 +1,75 @@
 # DARUSO Development Roadmap
 
+The phases below describe the original build order. They are **not** delivery
+gates: the documented system is implemented as a whole, and this file is
+retained as a record of what has been built.
+
 ## Phase 1: Foundation ✅
 
 - [x] Laravel setup with PostgreSQL
 - [x] Authentication (login, register, password reset)
-- [ ] Users, students, basic roles/permissions
-- [ ] Base layouts (app, auth)
-- [ ] Student dashboard
-- [ ] Leader dashboard
-- [ ] Basic navigation and UI structure
+- [x] Users, students, basic roles/permissions
+- [x] Base layouts (app, auth)
+- [x] Student dashboard
+- [x] Leader dashboard
+- [x] Basic navigation and UI structure
 
-## Phase 2: DARUSO Organization
+## Phase 2: DARUSO Organization ✅
 
-- [ ] Leadership terms
-- [ ] Positions
-- [ ] Ministries
-- [ ] Committees
-- [ ] Leader assignments
-- [ ] Committee membership
-- [ ] Organizational authorization
+- [x] Leadership terms
+- [x] Positions
+- [x] Ministries
+- [x] Committees
+- [x] Leader assignments
+- [x] Committee membership
+- [x] Organizational authorization
 
-## Phase 3: Communication Engine
+## Phase 3: Communication Engine ✅
 
-- [ ] Announcements (CRUD, lifecycle)
-- [ ] Announcement targeting
-- [ ] Notifications (targeted)
-- [ ] Read/unread state
-- [ ] Attachments
-- [ ] Priorities
+- [x] Announcements (CRUD, lifecycle)
+- [x] Announcement targeting
+- [x] Notifications (targeted)
+- [x] Read/unread state
+- [x] Attachments
+- [x] Priorities
 
-## Phase 4: Student Services
+## Phase 4: Student Services ✅
 
-- [ ] Complaints (submit, track)
-- [ ] Complaint categories
-- [ ] Complaint assignments
-- [ ] Status workflow
-- [ ] Complaint history
-- [ ] Student notifications
+- [x] Complaints (submit, track)
+- [x] Complaint categories
+- [x] Complaint assignments
+- [x] Status workflow
+- [x] Complaint history
+- [x] Student notifications
 
-## Phase 5: Meetings and Events
+## Phase 5: Meetings and Events ✅
 
-- [ ] Meetings (CRUD, audience)
-- [ ] Events (CRUD, audience)
-- [ ] Target audiences
-- [ ] Reminders
-- [ ] Attachments
+- [x] Meetings (CRUD, audience)
+- [x] Events (CRUD, audience)
+- [x] Target audiences
+- [x] Reminders
+- [x] Attachments
 
-## Phase 6: Documents and Reports
+## Phase 6: Documents and Reports ✅
 
-- [ ] Document management
-- [ ] Document visibility
-- [ ] Reports
-- [ ] Activity statistics
+- [x] Document management
+- [x] Document visibility
+- [x] Reports
+- [x] Activity statistics
 
-## Phase 7: Audit and Administration
+## Phase 7: Audit and Administration ✅
 
-- [ ] Audit logs
-- [ ] System settings
-- [ ] Advanced permissions
-- [ ] Leadership management
-- [ ] Administrative controls
+- [x] Audit logs
+- [x] System settings
+- [x] Advanced permissions
+- [x] Leadership management
+- [x] Administrative controls
 
-## Phase 8: External Notification Channels
+## Phase 8: External Notification Channels ⏳
+
+Business logic is decoupled from delivery (`NotificationDispatcher`), and the
+email/SMS toggles exist in system settings, but no external provider is
+configured. These remain future work and are intentionally not implemented:
 
 - [ ] Email notifications
 - [ ] SMS notifications

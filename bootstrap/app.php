@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Middleware\CheckRole;
+use App\Http\Middleware\DenyStudentRole;
+use App\Http\Middleware\EnsurePermission;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -15,7 +17,13 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'role' => CheckRole::class,
+            'role.except' => DenyStudentRole::class,
+            'permission' => EnsurePermission::class,
         ]);
+
+        // Authenticated pages are session-backed and must never be cached by a
+        // shared proxy; the session cookie itself is handled by Laravel.
+        $middleware->encryptCookies(except: ['locale']);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

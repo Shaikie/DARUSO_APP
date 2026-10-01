@@ -1,3 +1,757 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* ===========================================================================
+ | DARUSO Design System
+ | ---------------------------------------------------------------------------
+ | Neumorphic skin layered on top of Bootstrap 5.
+ |
+ | Bootstrap still provides the grid, components and behaviour; this layer only
+ | overrides surface, shadow and radius tokens so the application reads as a
+ | single soft-UI system. Every value is driven by the custom properties below,
+ | so the whole theme can be re-tuned from one place.
+ |===========================================================================*/
+
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+/* ---------------------------------------------------------------------------
+ | 1. Design tokens
+ |---------------------------------------------------------------------------*/
+
+:root {
+    /* Surfaces: a single light base, with one lighter highlight and one deeper
+       shade. Neumorphism depends on shadows being derived from these. */
+    --nm-base: #e8ecf3;
+    --nm-base-light: #f2f5fa;
+    --nm-base-dark: #dde2ea;
+
+    /* Accent colours. Kept desaturated so they sit inside the soft palette. */
+    --nm-primary: #4c6ef5;
+    --nm-primary-dark: #3b5bdb;
+    --nm-success: #2f9e6f;
+    --nm-warning: #d98324;
+    --nm-danger: #d9534f;
+    --nm-info: #3d8fd1;
+
+    /* Text */
+    --nm-text: #333c4d;
+    --nm-text-muted: #78849b;
+    --nm-text-inverse: #ffffff;
+
+    /* Soft shadows: light from the top-left, dark from the bottom-right. */
+    --nm-shadow-raised:
+        -6px -6px 14px var(--nm-base-light),
+        6px 6px 14px var(--nm-base-dark);
+    --nm-shadow-raised-sm:
+        -3px -3px 7px var(--nm-base-light),
+        3px 3px 7px var(--nm-base-dark);
+    --nm-shadow-raised-lg:
+        -10px -10px 22px var(--nm-base-light),
+        10px 10px 22px var(--nm-base-dark);
+    --nm-shadow-inset:
+        inset -4px -4px 9px var(--nm-base-light),
+        inset 4px 4px 9px var(--nm-base-dark);
+    --nm-shadow-inset-sm:
+        inset -2px -2px 5px var(--nm-base-light),
+        inset 2px 2px 5px var(--nm-base-dark);
+    --nm-shadow-none: none;
+
+    /* Geometry */
+    --nm-radius: 1rem;
+    --nm-radius-sm: 0.6rem;
+    --nm-radius-lg: 1.5rem;
+    --nm-radius-pill: 50rem;
+
+    /* Motion */
+    --nm-transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Sidebar */
+    --nm-sidebar-width: 268px;
+
+    /* Bridge Bootstrap 5 variables so existing utilities inherit the theme. */
+    --bs-body-bg: var(--nm-base);
+    --bs-body-color: var(--nm-text);
+    --bs-border-color: transparent;
+    --bs-link-color: var(--nm-primary);
+    --bs-link-hover-color: var(--nm-primary-dark);
+    --bs-border-radius: var(--nm-radius-sm);
+}
+
+/* ---------------------------------------------------------------------------
+ | 2. Base
+ |---------------------------------------------------------------------------*/
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--nm-base);
+    color: var(--nm-text);
+    font-family: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+}
+
+a {
+    text-decoration: none;
+    transition: color var(--nm-transition);
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Consistent focus ring across the app, including keyboard users. */
+:focus-visible {
+    outline: 3px solid rgba(76, 110, 245, 0.45);
+    outline-offset: 2px;
+    border-radius: var(--nm-radius-sm);
+}
+
+::selection {
+    background: rgba(76, 110, 245, 0.2);
+}
+
+/* ---------------------------------------------------------------------------
+ | 3. Surfaces — the core neumorphic primitives
+ |---------------------------------------------------------------------------*/
+
+/* Raised panel: the workhorse surface for cards, modals and popovers. */
+.nm-surface {
+    background: var(--nm-base);
+    border: none;
+    border-radius: var(--nm-radius);
+    box-shadow: var(--nm-shadow-raised);
+}
+
+/* Recessed surface: inputs, wells and inactive tabs read as pressed in. */
+.nm-surface-inset {
+    background: var(--nm-base);
+    border: none;
+    border-radius: var(--nm-radius-sm);
+    box-shadow: var(--nm-shadow-inset);
+}
+
+/* Flat surface for large areas where a double shadow would be noisy. */
+.nm-surface-flat {
+    background: var(--nm-base);
+    border: none;
+    box-shadow: none;
+}
+
+/* ---------------------------------------------------------------------------
+ | 4. Cards
+ |---------------------------------------------------------------------------*/
+
+.card {
+    background: var(--nm-base);
+    border: none;
+    border-radius: var(--nm-radius);
+    box-shadow: var(--nm-shadow-raised);
+    transition: box-shadow var(--nm-transition), transform var(--nm-transition);
+}
+
+/* Interactive cards lift slightly on hover; stretched links stay clickable. */
+.card.stretched-link,
+a.card {
+    color: inherit;
+}
+
+a.card:hover,
+.card.stretched-link:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--nm-shadow-raised-lg);
+    text-decoration: none;
+}
+
+.card-header,
+.card-footer {
+    background: transparent;
+    border-color: rgba(0, 0, 0, 0.04);
+    border-radius: var(--nm-radius) var(--nm-radius) 0 0;
+    padding: 1rem 1.25rem;
+}
+
+.card-footer {
+    border-radius: 0 0 var(--nm-radius) var(--nm-radius);
+    border-top-color: rgba(0, 0, 0, 0.04);
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+/* ---------------------------------------------------------------------------
+ | 5. Forms
+ |---------------------------------------------------------------------------*/
+
+.form-control,
+.form-select {
+    background: var(--nm-base);
+    border: none;
+    border-radius: var(--nm-radius-sm);
+    box-shadow: var(--nm-shadow-inset-sm);
+    color: var(--nm-text);
+    padding: 0.6rem 0.95rem;
+    transition: box-shadow var(--nm-transition);
+}
+
+.form-control:focus,
+.form-select:focus {
+    background: var(--nm-base);
+    border: none;
+    color: var(--nm-text);
+    box-shadow: var(--nm-shadow-inset-sm), 0 0 0 3px rgba(76, 110, 245, 0.22);
+    outline: none;
+}
+
+.form-control::placeholder {
+    color: var(--nm-text-muted);
+    opacity: 1;
+}
+
+.form-control:disabled,
+.form-control[readonly],
+.form-select:disabled {
+    background: var(--nm-base-dark);
+    color: var(--nm-text-muted);
+    box-shadow: var(--nm-shadow-inset-sm);
+    opacity: 0.75;
+}
+
+.form-control.is-invalid,
+.form-select.is-invalid,
+.invalid-feedback {
+    /* Errors keep Bootstrap's semantics but adopt the soft palette. */
+    box-shadow: var(--nm-shadow-inset-sm), 0 0 0 2px rgba(217, 83, 79, 0.35);
+}
+
+.invalid-feedback {
+    color: var(--nm-danger);
+}
+
+.form-label {
+    color: var(--nm-text);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+.form-text {
+    color: var(--nm-text-muted);
+}
+
+/* Inputs in a horizontal filter row stay compact. */
+.form-control-sm,
+.form-select-sm {
+    padding: 0.4rem 0.7rem;
+    border-radius: var(--nm-radius-sm);
+}
+
+/* ---------------------------------------------------------------------------
+ | 6. Buttons
+ |---------------------------------------------------------------------------*/
+
+.btn {
+    --nm-btn-bg: var(--nm-base);
+    --nm-btn-fg: var(--nm-text);
+
+    background: var(--nm-btn-bg);
+    border: none;
+    border-radius: var(--nm-radius-pill);
+    box-shadow: var(--nm-shadow-raised-sm);
+    color: var(--nm-btn-fg);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 0.5rem 1.25rem;
+    transition: box-shadow var(--nm-transition), transform var(--nm-transition),
+        background-color var(--nm-transition), color var(--nm-transition);
+}
+
+/* Pressed-in on hover, matching the physical metaphor. */
+.btn:hover {
+    box-shadow: var(--nm-shadow-inset-sm);
+    transform: translateY(1px);
+    text-decoration: none;
+}
+
+.btn:active,
+.btn.active {
+    box-shadow: var(--nm-shadow-inset-sm);
+    transform: translateY(2px);
+}
+
+.btn:focus-visible {
+    box-shadow: var(--nm-shadow-inset-sm), 0 0 0 3px rgba(76, 110, 245, 0.3);
+}
+
+.btn-sm {
+    padding: 0.35rem 0.8rem;
+    font-size: 0.85rem;
+}
+
+.btn-lg {
+    padding: 0.7rem 1.6rem;
+    font-size: 1rem;
+}
+
+/* Filled variants */
+.btn-primary {
+    --nm-btn-bg: var(--nm-primary);
+    --nm-btn-fg: var(--nm-text-inverse);
+    box-shadow:
+        -3px -3px 8px rgba(255, 255, 255, 0.65),
+        4px 4px 10px rgba(76, 86, 120, 0.45);
+}
+
+.btn-success {
+    --nm-btn-bg: var(--nm-success);
+    --nm-btn-fg: var(--nm-text-inverse);
+    box-shadow:
+        -3px -3px 8px rgba(255, 255, 255, 0.65),
+        4px 4px 10px rgba(47, 110, 82, 0.42);
+}
+
+.btn-danger {
+    --nm-btn-bg: var(--nm-danger);
+    --nm-btn-fg: var(--nm-text-inverse);
+    box-shadow:
+        -3px -3px 8px rgba(255, 255, 255, 0.65),
+        4px 4px 10px rgba(150, 60, 58, 0.42);
+}
+
+.btn-warning {
+    --nm-btn-bg: var(--nm-warning);
+    --nm-btn-fg: var(--nm-text-inverse);
+    box-shadow:
+        -3px -3px 8px rgba(255, 255, 255, 0.65),
+        4px 4px 10px rgba(160, 100, 40, 0.4);
+}
+
+.btn-dark {
+    --nm-btn-bg: #4a5568;
+    --nm-btn-fg: var(--nm-text-inverse);
+}
+
+.btn-secondary {
+    --nm-btn-bg: var(--nm-base);
+    --nm-btn-fg: var(--nm-text);
+}
+
+/* Outline variants read as raised ghost buttons. */
+.btn-outline-primary,
+.btn-outline-secondary,
+.btn-outline-success,
+.btn-outline-danger,
+.btn-outline-warning,
+.btn-outline-dark {
+    background: var(--nm-base);
+    box-shadow: var(--nm-shadow-raised-sm);
+    font-weight: 600;
+}
+
+.btn-outline-primary { color: var(--nm-primary); }
+.btn-outline-success { color: var(--nm-success); }
+.btn-outline-danger { color: var(--nm-danger); }
+.btn-outline-warning { color: var(--nm-warning); }
+.btn-outline-secondary,
+.btn-outline-dark { color: var(--nm-text); }
+
+.btn-outline-primary:hover { color: var(--nm-primary-dark); background: var(--nm-base); }
+.btn-outline-success:hover { color: var(--nm-success); background: var(--nm-base); }
+.btn-outline-danger:hover { color: var(--nm-danger); background: var(--nm-base); }
+.btn-outline-warning:hover { color: var(--nm-warning); background: var(--nm-base); }
+.btn-outline-secondary:hover,
+.btn-outline-dark:hover { color: var(--nm-text); background: var(--nm-base); }
+
+.btn-link {
+    background: transparent;
+    box-shadow: none;
+    color: var(--nm-primary);
+    text-decoration: none;
+}
+
+.btn-link:hover {
+    box-shadow: none;
+    color: var(--nm-primary-dark);
+    transform: none;
+}
+
+/* Icon-only buttons keep a square footprint. */
+.btn-group .btn {
+    border-radius: var(--nm-radius-pill);
+}
+
+.btn-group .btn + .btn {
+    margin-left: 0.35rem;
+}
+
+/* ---------------------------------------------------------------------------
+ | 7. Navigation
+ |---------------------------------------------------------------------------*/
+
+.navbar {
+    background: var(--nm-base);
+    box-shadow: var(--nm-shadow-raised-sm);
+    border-bottom: none;
+    padding: 0.75rem 1rem;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: 0.01em;
+}
+
+.navbar-text {
+    color: var(--nm-text-muted);
+}
+
+/* Sidebar */
+#sidebar-wrapper {
+    width: var(--nm-sidebar-width);
+    flex: 0 0 var(--nm-sidebar-width);
+    min-height: 100vh;
+    background: var(--nm-base);
+    box-shadow: var(--nm-shadow-raised);
+    border-right: none;
+    border-radius: 0 var(--nm-radius) var(--nm-radius) 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+#page-content-wrapper {
+    min-width: 0;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.daruso-sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    color: var(--nm-text-muted);
+    border-radius: var(--nm-radius-sm);
+    margin: 0.15rem 0.6rem;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.94rem;
+    transition: box-shadow var(--nm-transition), color var(--nm-transition),
+        background-color var(--nm-transition);
+}
+
+.daruso-sidebar-link i {
+    font-size: 1.05rem;
+    width: 1.25rem;
+    text-align: center;
+}
+
+.daruso-sidebar-link:hover {
+    color: var(--nm-text);
+    text-decoration: none;
+    background: var(--nm-base);
+    box-shadow: var(--nm-shadow-inset-sm);
+}
+
+.daruso-sidebar-link.active {
+    color: var(--nm-primary);
+    font-weight: 600;
+    background: var(--nm-base);
+    box-shadow: var(--nm-shadow-inset-sm);
+}
+
+/* ---------------------------------------------------------------------------
+ | 8. Badges, alerts and toasts
+ |---------------------------------------------------------------------------*/
+
+.badge {
+    border-radius: var(--nm-radius-pill);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 0.35em 0.75em;
+}
+
+.alert {
+    border: none;
+    border-radius: var(--nm-radius);
+    box-shadow: var(--nm-shadow-raised-sm);
+    background: var(--nm-base);
+    color: var(--nm-text);
+    border-left: 4px solid currentColor;
+}
+
+.alert-success { color: var(--nm-success); }
+.alert-danger { color: var(--nm-danger); }
+.alert-warning { color: var(--nm-warning); }
+.alert-info { color: var(--nm-info); }
+
+/* Restore a readable body colour inside coloured alerts. */
+.alert strong,
+.alert li {
+    color: var(--nm-text);
+}
+
+.alert .btn-close {
+    filter: none;
+    opacity: 0.5;
+}
+
+/* ---------------------------------------------------------------------------
+ | 9. Tables
+ |---------------------------------------------------------------------------*/
+
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--nm-text);
+    --bs-table-border-color: rgba(0, 0, 0, 0.05);
+    margin-bottom: 0;
+}
+
+.table > :not(caption) > * > * {
+    vertical-align: middle;
+    padding: 0.85rem 0.75rem;
+}
+
+.table thead th {
+    color: var(--nm-text-muted);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: transparent;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.06);
+    white-space: nowrap;
+}
+
+.table-hover > tbody > tr:hover > * {
+    background-color: rgba(76, 110, 245, 0.06);
+    --bs-table-accent-bg: transparent;
+}
+
+.table-sm > :not(caption) > * > * {
+    padding: 0.5rem 0.6rem;
+}
+
+/* ---------------------------------------------------------------------------
+ | 10. Statistics tiles
+ |---------------------------------------------------------------------------*/
+
+.stat-card {
+    border: none;
+    border-radius: var(--nm-radius);
+    background: var(--nm-base);
+    box-shadow: var(--nm-shadow-raised);
+}
+
+.stat-card .stat-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: var(--nm-radius-sm);
+    font-size: 1.35rem;
+    flex-shrink: 0;
+    box-shadow: var(--nm-shadow-inset-sm);
+}
+
+/* Icon tiles are inset wells, so the tint reads as a recessed chip. */
+.text-primary.bg-primary-subtle { background: rgba(76, 110, 245, 0.16) !important; color: var(--nm-primary) !important; }
+.text-success.bg-success-subtle { background: rgba(47, 158, 111, 0.16) !important; color: var(--nm-success) !important; }
+.text-warning.bg-warning-subtle { background: rgba(217, 131, 36, 0.16) !important; color: var(--nm-warning) !important; }
+.text-danger.bg-danger-subtle { background: rgba(217, 83, 79, 0.16) !important; color: var(--nm-danger) !important; }
+.text-info.bg-info-subtle { background: rgba(61, 143, 209, 0.16) !important; color: var(--nm-info) !important; }
+.text-secondary.bg-secondary-subtle { background: rgba(120, 132, 155, 0.16) !important; color: var(--nm-text-muted) !important; }
+
+/* ---------------------------------------------------------------------------
+ | 11. Progress, lists and pagination
+ |---------------------------------------------------------------------------*/
+
+.progress {
+    background: var(--nm-base);
+    border-radius: var(--nm-radius-pill);
+    box-shadow: var(--nm-shadow-inset-sm);
+    height: 0.6rem;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: var(--nm-primary);
+    border-radius: var(--nm-radius-pill);
+}
+
+.list-group-item {
+    background: transparent;
+    border-color: rgba(0, 0, 0, 0.05);
+    padding: 1rem 0;
+}
+
+.list-group-item:first-child { border-top: none; }
+.list-group-item:last-child { border-bottom: none; }
+
+.page-link {
+    background: var(--nm-base);
+    border: none;
+    border-radius: var(--nm-radius-sm) !important;
+    color: var(--nm-text);
+    box-shadow: var(--nm-shadow-raised-sm);
+    margin: 0 0.15rem;
+}
+
+.page-link:hover {
+    background: var(--nm-base);
+    color: var(--nm-primary);
+    box-shadow: var(--nm-shadow-inset-sm);
+}
+
+.page-item.active .page-link {
+    background: var(--nm-primary);
+    color: var(--nm-text-inverse);
+    box-shadow: var(--nm-shadow-inset-sm);
+}
+
+.page-item.disabled .page-link {
+    background: var(--nm-base);
+    color: var(--nm-text-muted);
+    box-shadow: none;
+    opacity: 0.5;
+}
+
+/* ---------------------------------------------------------------------------
+ | 12. Modals, dropdowns and offcanvas
+ |---------------------------------------------------------------------------*/
+
+.modal-content {
+    background: var(--nm-base);
+    border: none;
+    border-radius: var(--nm-radius-lg);
+    box-shadow: var(--nm-shadow-raised-lg);
+}
+
+.modal-header,
+.modal-footer {
+    border-color: rgba(0, 0, 0, 0.05);
+}
+
+.dropdown-menu {
+    background: var(--nm-base);
+    border: none;
+    border-radius: var(--nm-radius);
+    box-shadow: var(--nm-shadow-raised-lg);
+    padding: 0.5rem;
+}
+
+.dropdown-item {
+    border-radius: var(--nm-radius-sm);
+    color: var(--nm-text);
+    padding: 0.55rem 0.85rem;
+    transition: box-shadow var(--nm-transition), background-color var(--nm-transition);
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background: var(--nm-base);
+    color: var(--nm-text);
+    box-shadow: var(--nm-shadow-inset-sm);
+}
+
+.dropdown-divider {
+    border-color: rgba(0, 0, 0, 0.07);
+}
+
+.dropdown-header {
+    color: var(--nm-text-muted);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+/* ---------------------------------------------------------------------------
+ | 13. Forms extras
+ |---------------------------------------------------------------------------*/
+
+.form-check-input {
+    background-color: var(--nm-base);
+    border: none;
+    box-shadow: var(--nm-shadow-inset-sm);
+    width: 2.5rem;
+    height: 1.35rem;
+}
+
+.form-check-input:checked {
+    background-color: var(--nm-primary);
+    box-shadow: var(--nm-shadow-inset-sm);
+}
+
+.form-check-input:focus {
+    border: none;
+    box-shadow: var(--nm-shadow-inset-sm), 0 0 0 3px rgba(76, 110, 245, 0.25);
+}
+
+.form-switch .form-check-input {
+    width: 2.75rem;
+}
+
+/* ---------------------------------------------------------------------------
+ | 14. Utilities
+ |---------------------------------------------------------------------------*/
+
+.text-muted { color: var(--nm-text-muted) !important; }
+.text-success { color: var(--nm-success) !important; }
+.text-danger { color: var(--nm-danger) !important; }
+.text-warning { color: var(--nm-warning) !important; }
+.text-primary { color: var(--nm-primary) !important; }
+.text-info { color: var(--nm-info) !important; }
+
+.bg-body,
+.bg-light {
+    background-color: var(--nm-base) !important;
+}
+
+/* Reusable surface helpers for ad-hoc markup in views. */
+.nm-panel {
+    background: var(--nm-base);
+    border-radius: var(--nm-radius);
+    box-shadow: var(--nm-shadow-raised);
+    padding: 1.25rem;
+}
+
+.nm-inset {
+    background: var(--nm-base);
+    border-radius: var(--nm-radius-sm);
+    box-shadow: var(--nm-shadow-inset);
+    padding: 1rem;
+}
+
+.nm-divider {
+    height: 2px;
+    border: none;
+    border-radius: var(--nm-radius-pill);
+    background: rgba(0, 0, 0, 0.06);
+    margin: 1.25rem 0;
+}
+
+/* ---------------------------------------------------------------------------
+ | 15. Responsive
+ |---------------------------------------------------------------------------*/
+
+@media (max-width: 991.98px) {
+    #sidebar-wrapper {
+        position: fixed;
+        z-index: 1045;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        box-shadow: var(--nm-shadow-raised-lg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

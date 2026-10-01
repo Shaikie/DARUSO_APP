@@ -5,47 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'DARUSO') }}</title>
+    <meta name="theme-color" content="#e8ecf3">
 
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <title>@yield('title', 'Dashboard') &middot; {{ app(\App\Services\SettingService::class)->get('system_name', 'DARUSO') }}</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-light">
-    <div class="d-flex" id="wrapper">
+<body>
+    <div class="d-flex align-items-stretch" id="wrapper">
         @auth
             @include('layouts.sidebar')
         @endauth
 
-        <div id="page-content-wrapper" class="w-100">
+        <div id="page-content-wrapper" class="flex-grow-1 d-flex flex-column">
             @auth
                 @include('layouts.topbar')
             @endauth
 
-            <main class="container-fluid p-4">
-                @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                @endif
+            <main class="container-fluid p-3 p-lg-4 flex-grow-1">
+                <x-flash-messages />
 
-                @if(session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        {{ session('error') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-4">
+                    <div>
+                        <h1 class="h3 mb-1 fw-bold">@yield('heading', 'Dashboard')</h1>
+                        @hasSection('subheading')
+                            <p class="text-muted mb-0">@yield('subheading')</p>
+                        @endif
                     </div>
-                @endif
+                    @hasSection('actions')
+                        <div class="d-flex flex-wrap gap-2">@yield('actions')</div>
+                    @endif
+                </div>
 
-                {{ $slot }}
+                {{ $slot ?? '' }}
+                @yield('content')
             </main>
+
+            <footer class="container-fluid px-4 py-3 text-muted small border-top bg-white">
+                &copy; {{ now()->year }} {{ app(\App\Services\SettingService::class)->get('organisation_name', 'Daruso Students Organisation') }}
+            </footer>
         </div>
     </div>
 
-    <!-- Bootstrap 5 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    @stack('scripts')
 </body>
 </html>

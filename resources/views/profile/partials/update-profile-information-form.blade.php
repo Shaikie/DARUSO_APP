@@ -1,64 +1,63 @@
-<section>
-    <header>
-        <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Profile Information') }}
-        </h2>
+{{-- Account contact details. --}}
+<x-page-card icon="person" title="Account information">
+    <p class="small text-muted">
+        Update your name, email address or phone number. Changing your email requires
+        re-verification.
+    </p>
 
-        <p class="mt-1 text-sm text-gray-600">
-            {{ __("Update your account's profile information and email address.") }}
-        </p>
-    </header>
-
-    <form id="send-verification" method="post" action="{{ route('verification.send') }}">
+    <form id="send-verification" method="POST" action="{{ route('verification.send') }}">
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form method="POST" action="{{ route('profile.update') }}">
         @csrf
-        @method('patch')
+        @method('PATCH')
 
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
-            <x-input-error class="mt-2" :messages="$errors->get('name')" />
-        </div>
+        <div class="row g-3">
+            <div class="col-12 col-md-6">
+                <label for="name" class="form-label small fw-semibold">Name</label>
+                <input type="text" id="name" name="name" required autocomplete="name"
+                       class="form-control @error('name') is-invalid @enderror"
+                       value="{{ old('name', $user->name) }}">
+                @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            </div>
 
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
-            <x-input-error class="mt-2" :messages="$errors->get('email')" />
+            <div class="col-12 col-md-6">
+                <label for="phone" class="form-label small fw-semibold">Phone</label>
+                <input type="tel" id="phone" name="phone" maxlength="32" autocomplete="tel"
+                       class="form-control @error('phone') is-invalid @enderror"
+                       value="{{ old('phone', $user->phone) }}">
+                @error('phone') <div class="invalid-feedback">{{ $message }}</div> @enderror>
+            </div>
 
-            @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
-                <div>
-                    <p class="text-sm mt-2 text-gray-800">
-                        {{ __('Your email address is unverified.') }}
+            <div class="col-12">
+                <label for="email" class="form-label small fw-semibold">Email</label>
+                <input type="email" id="email" name="email" required autocomplete="username"
+                       class="form-control @error('email') is-invalid @enderror"
+                       value="{{ old('email', $user->email) }}">
+                @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror>
 
-                        <button form="send-verification" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            {{ __('Click here to re-send the verification email.') }}
+                @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
+                    <div class="alert alert-warning small mt-2 mb-0" role="alert">
+                        Your email address is unverified.
+                        <button form="send-verification" class="btn btn-link btn-sm p-0 align-baseline">
+                            Re-send the verification email
                         </button>
-                    </p>
 
-                    @if (session('status') === 'verification-link-sent')
-                        <p class="mt-2 font-medium text-sm text-green-600">
-                            {{ __('A new verification link has been sent to your email address.') }}
-                        </p>
-                    @endif
-                </div>
-            @endif
+                        @if (session('status') === 'verification-link-sent')
+                            <div class="mt-1">A new verification link has been sent.</div>
+                        @endif
+                    </div>
+                @endif
+            </div>
         </div>
 
-        <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
+        <button class="btn btn-primary mt-4">
+            <i class="bi bi-check-lg me-1"></i>Save
+        </button>
 
-            @if (session('status') === 'profile-updated')
-                <p
-                    x-data="{ show: true }"
-                    x-show="show"
-                    x-transition
-                    x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600"
-                >{{ __('Saved.') }}</p>
-            @endif
-        </div>
+        @if (session('status') === 'profile-updated')
+            <span class="text-success small ms-3">Saved.</span>
+        @endif
     </form>
-</section>
+</x-page-card>

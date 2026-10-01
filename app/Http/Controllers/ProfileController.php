@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Http\Requests\StoreStudentProfileRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,15 +19,17 @@ class ProfileController extends Controller
     {
         return view('profile.edit', [
             'user' => $request->user(),
+            'studentProfile' => $request->user()->studentProfile,
+            'leaderProfile' => $request->user()->leaderProfile,
         ]);
     }
 
     /**
-     * Update the user's profile information.
+     * Update contact details.
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $request->user()->fill($request->safe()->only(['name', 'email', 'phone']));
 
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
@@ -35,6 +38,31 @@ class ProfileController extends Controller
         $request->user()->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    }
+
+    /**
+     * Update the signed-in student's own academic record.
+     *
+     * Scoped to `academicPayload()`, so a student cannot alter their own status
+     * or registration number through this form.
+     */
+    public function updateStudentProfile(StoreStudentProfileRequest $request): RedirectResponse
+    {
+        $profile = $request->user()->studentProfile;
+
+        if ($profile === null) {
+            return back()->with('error', 'No student profile is linked to your account.');
+        }
+
+        $this->authorize('update', $profile);
+
+        // Registration number is administratively controlled, so self-service
+        // updates cover only the descriptive academic fields.
+        $profile->update($request->safe()->only([
+            'college', 'school_faculty', 'programme', 'year_of_study', 'hostel', 'gender',
+        ]));
+
+        return back()->with('success', 'Student profile updated.');
     }
 
     /**

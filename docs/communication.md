@@ -88,7 +88,23 @@ When an announcement is published:
 - WhatsApp (Phase 8)
 - Push notifications (Phase 8)
 
-Notification business logic is decoupled from delivery channels.
+Notification business logic is decoupled from delivery channels: callers
+describe *what* to send and to whom, and `NotificationDispatcher` owns
+persistence. New channels attach to the same call sites without touching the
+services that produce notifications.
+
+## Implementation Notes
+
+- **Broadcasts are bounded.** Each recipient gets their own row so read state is
+  personal, but `NotificationDispatcher::broadcast()` refuses audiences above
+  `config('daruso.audience.notification_materialisation_limit')` (default 500)
+  and directs the sender to publish an announcement instead. A university-wide
+  message therefore stays a single targeted record rather than 30,000 rows.
+- **Creating and sending are separate.** `notification.create` allows composing;
+  `notification.send` is required to deliver. The former alone cannot send.
+- **Announcements are never read-row-per-user.** They resolve on read through
+  `AudienceResolver`, which applies one correlated `EXISTS` over the audience
+  pivot so a message matching several rules is still returned once.
 
 ## Read/Unread Tracking
 

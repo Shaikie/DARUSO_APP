@@ -107,8 +107,39 @@ php artisan test
 5. Run `npm run build`
 6. Configure Nginx with PHP-FPM
 7. Set up SSL/TLS
-8. Configure proper file permissions:
-   ```bash
-   chmod -R 755 storage bootstrap/cache
-   chown -R www-data:www-data storage bootstrap/cache
-   ```
+8. Configure proper file permissions
+
+### Fedora notes
+
+Fedora runs PHP-FPM as `apache`, not `www-data` (that is Debian/Ubuntu).
+Confirm the real values before changing permissions:
+
+```bash
+grep -R "^[[:space:]]*\(user\|group\|listen\)" /etc/php-fpm.d/www.conf
+```
+
+Application files are served read-only; only `storage/` and `bootstrap/cache`
+need to be writable by the FPM worker. ACLs let the FPM user and the developer
+both write without transferring ownership:
+
+```bash
+sudo setfacl -R -m  u:apache:rwX storage bootstrap/cache
+sudo setfacl -R -d -m u:apache:rwX storage bootstrap/cache
+```
+
+With SELinux enforcing, label the code read-only and the writable paths
+separately:
+
+```bash
+sudo semanage fcontext -a -t httpd_sys_content_t  "/var/www/DARUSO_APP(/.*)?"
+sudo semanage fcontext -a -t httpd_sys_rw_content_t "/var/www/DARUSO_APP/storage(/.*)?"
+sudo semanage fcontext -a -t httpd_sys_rw_content_t "/var/www/DARUSO_APP/bootstrap/cache(/.*)?"
+sudo restorecon -Rv /var/www/DARUSO_APP
+```
+
+Note that the PHP-FPM package must include the PostgreSQL driver, otherwise the
+application cannot connect through the web server even though the CLI can:
+
+```bash
+sudo dnf install php-pgsql
+```

@@ -1,160 +1,198 @@
 <x-app-layout>
-    <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold">Leader Dashboard</h2>
-            <span class="text-muted">{{ now()->format('l, F j, Y') }}</span>
-        </div>
+    @section('title', 'Dashboard')
+    @section('heading', 'Leadership dashboard')
+    @section('subheading', 'Communication, complaints and organisational activity')
 
-        <!-- Welcome Section -->
-        <div class="card mb-4 border-0 shadow-sm">
-            <div class="card-body">
-                <h4 class="card-title">Welcome, {{ auth()->user()->name }}!</h4>
-                <p class="card-text text-muted">Manage communication, complaints, and coordination from your dashboard.</p>
-            </div>
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <x-stat-card icon="inbox" label="Open complaints" :value="$stats['open_complaints']"
+                         :href="route('leader.complaints.index')" tone="warning" />
         </div>
-
-        <!-- Stats Cards -->
-        <div class="row mb-4">
-            <div class="col-md-3 mb-3">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body text-center">
-                        <i class="bi bi-megaphone-fill fs-1 text-primary"></i>
-                        <h5 class="mt-2 mb-1">{{ \App\Models\Announcement::where('status', 'published')->count() }}</h5>
-                        <p class="text-muted mb-0">Published Announcements</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body text-center">
-                        <i class="bi bi-exclamation-triangle-fill fs-1 text-warning"></i>
-                        <h5 class="mt-2 mb-1">{{ \App\Models\Complaint::whereIn('status', ['submitted', 'under_review', 'in_progress'])->count() }}</h5>
-                        <p class="text-muted mb-0">Pending Complaints</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body text-center">
-                        <i class="bi bi-calendar-event-fill fs-1 text-info"></i>
-                        <h5 class="mt-2 mb-1">{{ \App\Models\Meeting::where('status', 'scheduled')->count() }}</h5>
-                        <p class="text-muted mb-0">Scheduled Meetings</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body text-center">
-                        <i class="bi bi-people-fill fs-1 text-success"></i>
-                        <h5 class="mt-2 mb-1">{{ \App\Models\StudentProfile::where('status', 'active')->count() }}</h5>
-                        <p class="text-muted mb-0">Active Students</p>
-                    </div>
-                </div>
-            </div>
+        <div class="col-6 col-lg-3">
+            <x-stat-card icon="person-exclamation" label="Unassigned" :value="$stats['unassigned_complaints']"
+                         :href="route('leader.complaints.index')" tone="danger" />
         </div>
-
-        <!-- Quick Actions -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <h5 class="mb-3">Quick Actions</h5>
-            </div>
-            <div class="col-md-3 mb-3">
-                <a href="{{ route('leader.announcements.create') }}" class="text-decoration-none">
-                    <div class="card border-0 shadow-sm h-100 hover-shadow">
-                        <div class="card-body text-center">
-                            <i class="bi bi-plus-circle fs-1 text-primary"></i>
-                            <h6 class="mt-2 mb-0 text-dark">New Announcement</h6>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-3 mb-3">
-                <a href="{{ route('leader.complaints.index') }}" class="text-decoration-none">
-                    <div class="card border-0 shadow-sm h-100 hover-shadow">
-                        <div class="card-body text-center">
-                            <i class="bi bi-exclamation-triangle fs-1 text-warning"></i>
-                            <h6 class="mt-2 mb-0 text-dark">Manage Complaints</h6>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-3 mb-3">
-                <a href="{{ route('leader.meetings.create') }}" class="text-decoration-none">
-                    <div class="card border-0 shadow-sm h-100 hover-shadow">
-                        <div class="card-body text-center">
-                            <i class="bi bi-calendar-plus fs-1 text-info"></i>
-                            <h6 class="mt-2 mb-0 text-dark">Schedule Meeting</h6>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-3 mb-3">
-                <a href="{{ route('leader.notifications.create') }}" class="text-decoration-none">
-                    <div class="card border-0 shadow-sm h-100 hover-shadow">
-                        <div class="card-body text-center">
-                            <i class="bi bi-bell fs-1 text-success"></i>
-                            <h6 class="mt-2 mb-0 text-dark">Send Notification</h6>
-                        </div>
-                    </div>
-                </a>
-            </div>
+        <div class="col-6 col-lg-3">
+            <x-stat-card icon="people" label="Students" :value="$stats['total_students']"
+                         :href="route('leader.students.index')" tone="primary" />
         </div>
+        <div class="col-6 col-lg-3">
+            <x-stat-card icon="person-badge" label="Active leaders" :value="$stats['active_leaders']"
+                         :href="route('leader.leadership.index')" tone="info" />
+        </div>
+    </div>
 
-        <!-- Recent Activity -->
-        <div class="row">
-            <div class="col-md-6 mb-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-header bg-white">
-                        <h6 class="mb-0 fw-bold">Recent Announcements</h6>
-                    </div>
-                    <div class="card-body">
-                        @php
-                            $announcements = \App\Models\Announcement::latest()->limit(5)->get();
-                        @endphp
-                        @forelse($announcements as $announcement)
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div>
-                                    <h6 class="mb-1">{{ $announcement->title }}</h6>
-                                    <small class="text-muted">{{ $announcement->created_at->diffForHumans() }}</small>
-                                </div>
-                                <span class="badge bg-{{ $announcement->status === 'published' ? 'success' : ($announcement->status === 'draft' ? 'secondary' : 'warning') }}">
-                                    {{ ucfirst(str_replace('_', ' ', $announcement->status)) }}
-                                </span>
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <x-stat-card icon="calendar-event" label="Upcoming meetings" :value="$stats['upcoming_meetings']"
+                         :href="route('leader.meetings.index')" tone="primary" />
+        </div>
+        <div class="col-6 col-lg-3">
+            <x-stat-card icon="calendar-check" label="Upcoming events" :value="$stats['upcoming_events']"
+                         :href="route('leader.events.index')" tone="success" />
+        </div>
+        <div class="col-6 col-lg-3">
+            <x-stat-card icon="bell" label="Notifications sent" :value="$stats['notifications_sent']"
+                         :href="route('leader.notifications.index')" tone="secondary" />
+        </div>
+        <div class="col-6 col-lg-3">
+            <x-stat-card icon="bell-fill" label="My unread" :value="$unreadNotifications"
+                         :href="route('leader.notifications.index')" tone="danger" />
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-lg-7">
+            <x-page-card icon="exclamation-triangle" title="Recent complaints">
+                <x-slot:actions>
+                    <a href="{{ route('leader.complaints.index') }}" class="btn btn-sm btn-link">View all</a>
+                </x-slot:actions>
+
+                @forelse ($recentComplaints as $complaint)
+                    <div class="d-flex justify-content-between align-items-start border-bottom py-2 gap-2">
+                        <div>
+                            <a href="{{ route('leader.complaints.show', $complaint) }}"
+                               class="text-decoration-none fw-semibold">
+                                {{ $complaint->title }}
+                            </a>
+                            <div class="small text-muted">
+                                {{ $complaint->creator?->name }}
+                                · {{ $complaint->assignedMinistry?->name ?? 'Unassigned' }}
+                                · {{ $complaint->created_at->diffForHumans() }}
                             </div>
-                        @empty
-                            <p class="text-muted text-center mb-0">No announcements yet.</p>
-                        @endforelse
+                        </div>
+                        <x-status-badge :status="$complaint->status" />
                     </div>
-                </div>
-            </div>
-            <div class="col-md-6 mb-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-header bg-white">
-                        <h6 class="mb-0 fw-bold">Pending Complaints</h6>
-                    </div>
-                    <div class="card-body">
-                        @php
-                            $complaints = \App\Models\Complaint::whereIn('status', ['submitted', 'under_review', 'in_progress'])
-                                ->latest()
-                                ->limit(5)
-                                ->get();
-                        @endphp
-                        @forelse($complaints as $complaint)
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div>
-                                    <h6 class="mb-1">{{ $complaint->title }}</h6>
-                                    <small class="text-muted">{{ $complaint->created_at->diffForHumans() }}</small>
-                                </div>
-                                <span class="badge bg-{{ $complaint->status === 'resolved' ? 'success' : 'warning' }}">
-                                    {{ ucfirst(str_replace('_', ' ', $complaint->status)) }}
-                                </span>
+                @empty
+                    <x-empty-state icon="inbox" title="No complaints in your remit"
+                                   description="Complaints routed to your ministry appear here." />
+                @endforelse
+
+                @if ($complaintsByStatus->isNotEmpty())
+                    <hr>
+                    <h3 class="h6 fw-semibold mb-2">By status</h3>
+                    <div class="row g-2">
+                        @foreach ($complaintsByStatus as $status => $count)
+                            <div class="col-6 col-md-4 d-flex justify-content-between align-items-center">
+                                <x-status-badge :status="\App\Enums\ComplaintStatus::from($status)" />
+                                <span class="fw-semibold">{{ $count }}</span>
                             </div>
-                        @empty
-                            <p class="text-muted text-center mb-0">No pending complaints.</p>
-                        @endforelse
+                        @endforeach
                     </div>
-                </div>
-            </div>
+                @endif
+            </x-page-card>
+
+            <x-page-card class="mt-4" icon="megaphone" title="Recent announcements">
+                <x-slot:actions>
+                    @can('create', App\Models\Announcement::class)
+                        <a href="{{ route('leader.announcements.create') }}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-plus-lg me-1"></i>New
+                        </a>
+                    @endcan
+                </x-slot:actions>
+
+                @forelse ($recentAnnouncements as $announcement)
+                    <div class="d-flex justify-content-between align-items-start border-bottom py-2 gap-2">
+                        <div>
+                            <a href="{{ route('leader.announcements.show', $announcement) }}"
+                               class="text-decoration-none fw-semibold">
+                                {{ $announcement->title }}
+                            </a>
+                            <div class="small text-muted">
+                                {{ $announcement->author?->name }}
+                                @if ($announcement->published_at)
+                                    · published {{ $announcement->published_at->diffForHumans() }}
+                                @endif
+                            </div>
+                        </div>
+                        <div class="d-flex gap-1">
+                            <x-priority-badge :priority="$announcement->priority" />
+                            <x-status-badge :status="$announcement->status" />
+                        </div>
+                    </div>
+                @empty
+                    <x-empty-state icon="megaphone" title="No announcements"
+                                   description="Create the first announcement for your audience." />
+                @endforelse
+            </x-page-card>
+        </div>
+
+        <div class="col-12 col-lg-5">
+            <x-page-card icon="calendar-event" title="Upcoming meetings">
+                <x-slot:actions>
+                    <a href="{{ route('leader.meetings.index') }}" class="btn btn-sm btn-link">View all</a>
+                </x-slot:actions>
+
+                @forelse ($upcomingMeetings as $meeting)
+                    <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                        <div>
+                            <a href="{{ route('leader.meetings.show', $meeting) }}" class="text-decoration-none fw-semibold">
+                                {{ $meeting->title }}
+                            </a>
+                            <div class="small text-muted">
+                                {{ $meeting->meeting_date->format('d M Y') }}
+                                at {{ $meeting->meeting_time->format('H:i') }}
+                            </div>
+                        </div>
+                        <x-status-badge :status="$meeting->status" />
+                    </div>
+                @empty
+                    <x-empty-state icon="calendar-event" title="No upcoming meetings"
+                                   description="Schedule the next leadership meeting." />
+                @endforelse
+            </x-page-card>
+
+            <x-page-card class="mt-4" icon="send" title="Recently sent notifications">
+                <x-slot:actions>
+                    <a href="{{ route('leader.notifications.index') }}" class="btn btn-sm btn-link">View all</a>
+                </x-slot:actions>
+
+                @forelse ($sentNotifications as $notification)
+                    <div class="d-flex justify-content-between align-items-start border-bottom py-2 gap-2">
+                        <div>
+                            <span class="fw-semibold small">{{ $notification->title }}</span>
+                            <div class="small text-muted">
+                                to {{ $notification->recipient?->name }}
+                                · {{ $notification->created_at->diffForHumans() }}
+                            </div>
+                        </div>
+                        @if ($notification->isRead())
+                            <span class="badge text-bg-success">Read</span>
+                        @else
+                            <span class="badge text-bg-secondary">Unread</span>
+                        @endif
+                    </div>
+                @empty
+                    <x-empty-state icon="send" title="No notifications sent"
+                                   description="Send a targeted notification to students or leaders." />
+                @endforelse
+            </x-page-card>
+
+            <x-page-card class="mt-4" icon="journal-text" title="Recent activity">
+                <x-slot:actions>
+                    @can('audit.view')
+                        <a href="{{ route('leader.audit-logs.index') }}" class="btn btn-sm btn-link">Audit log</a>
+                    @endcan
+                </x-slot:actions>
+
+                @forelse ($recentActivity as $entry)
+                    <div class="d-flex justify-content-between align-items-start border-bottom py-2 gap-2">
+                        <div>
+                            <span class="small fw-semibold text-capitalize">{{ str_replace('_', ' ', $entry->action) }}</span>
+                            <div class="small text-muted">
+                                {{ $entry->target_type ? \Illuminate\Support\Str::headline(class_basename($entry->target_type)).' '.$entry->target_id : 'System' }}
+                                @if ($entry->actor)
+                                    · by {{ $entry->actor->name }}
+                                @endif
+                            </div>
+                        </div>
+                        <span class="small text-muted text-nowrap">{{ $entry->created_at?->diffForHumans() }}</span>
+                    </div>
+                @empty
+                    <x-empty-state icon="journal-text" title="No recorded activity yet"
+                                   description="Sensitive actions are logged here automatically." />
+                @endforelse
+            </x-page-card>
         </div>
     </div>
 </x-app-layout>

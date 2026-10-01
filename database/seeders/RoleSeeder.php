@@ -2,114 +2,124 @@
 
 namespace Database\Seeders;
 
+use App\Enums\PermissionName;
+use App\Enums\RoleName;
 use App\Models\Permission;
 use App\Models\Role;
 use Illuminate\Database\Seeder;
 
+/**
+ * Seeds roles and attaches their permissions.
+ *
+ * Each role is only a bundle of permission rows: there is no bypass flag, so
+ * revoking a permission from a role immediately narrows what its holders can do.
+ */
 class RoleSeeder extends Seeder
 {
     public function run(): void
     {
-        $permissions = [
-            'announcement.create',
-            'announcement.edit',
-            'announcement.edit_any',
-            'announcement.publish',
-            'announcement.delete',
-            'notification.create',
-            'notification.send',
-            'student.view',
-            'student.view_sensitive',
-            'student.view_hostel',
-            'complaint.view',
-            'complaint.assign',
-            'complaint.update',
-            'complaint.resolve',
-            'meeting.create',
-            'meeting.edit',
-            'meeting.manage',
-            'event.create',
-            'event.edit',
-            'event.manage',
-            'document.create',
-            'document.publish',
-            'document.delete',
-            'leader.manage',
-            'committee.manage',
-            'ministry.manage',
-            'system.settings',
-            'audit.view',
-        ];
+        $definitions = [
+            RoleName::Administrator->value => [
+                'description' => RoleName::Administrator->label(),
+                'permissions' => PermissionName::values(),
+            ],
 
-        foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission]);
-        }
+            RoleName::SecretaryGeneral->value => [
+                'description' => RoleName::SecretaryGeneral->label(),
+                'permissions' => [
+                    PermissionName::AnnouncementCreate,
+                    PermissionName::AnnouncementEdit,
+                    PermissionName::AnnouncementEditAny,
+                    PermissionName::AnnouncementPublish,
+                    PermissionName::AnnouncementDelete,
+                    PermissionName::NotificationCreate,
+                    PermissionName::NotificationSend,
+                    PermissionName::StudentView,
+                    PermissionName::StudentViewSensitive,
+                    PermissionName::ComplaintView,
+                    PermissionName::ComplaintAssign,
+                    PermissionName::ComplaintUpdate,
+                    PermissionName::ComplaintResolve,
+                    PermissionName::MeetingCreate,
+                    PermissionName::MeetingEdit,
+                    PermissionName::MeetingManage,
+                    PermissionName::EventCreate,
+                    PermissionName::EventEdit,
+                    PermissionName::EventManage,
+                    PermissionName::DocumentCreate,
+                    PermissionName::DocumentPublish,
+                    PermissionName::DocumentDelete,
+                    PermissionName::LeaderManage,
+                    PermissionName::CommitteeManage,
+                    PermissionName::MinistryManage,
+                    PermissionName::TermManage,
+                    PermissionName::PositionManage,
+                    PermissionName::ReportView,
+                    PermissionName::AuditView,
+                ],
+            ],
 
-        $roles = [
-            'admin' => [
-                'description' => 'System Administrator',
-                'permissions' => $permissions,
-            ],
-            'secretary_general' => [
-                'description' => 'Secretary General',
+            RoleName::MinistryLeader->value => [
+                'description' => RoleName::MinistryLeader->label(),
                 'permissions' => [
-                    'announcement.create',
-                    'announcement.edit_any',
-                    'announcement.publish',
-                    'notification.create',
-                    'notification.send',
-                    'student.view',
-                    'complaint.view',
-                    'complaint.assign',
-                    'meeting.create',
-                    'event.create',
-                    'document.create',
-                    'document.publish',
-                    'leader.manage',
-                    'audit.view',
+                    PermissionName::AnnouncementCreate,
+                    PermissionName::AnnouncementEdit,
+                    PermissionName::AnnouncementPublish,
+                    PermissionName::NotificationCreate,
+                    PermissionName::NotificationSend,
+                    PermissionName::StudentView,
+                    PermissionName::StudentViewHostel,
+                    PermissionName::ComplaintView,
+                    PermissionName::ComplaintUpdate,
+                    PermissionName::MeetingCreate,
+                    PermissionName::MeetingEdit,
+                    PermissionName::EventCreate,
+                    PermissionName::EventEdit,
+                    PermissionName::DocumentCreate,
+                    PermissionName::DocumentPublish,
+                    PermissionName::ReportView,
                 ],
             ],
-            'ministry_leader' => [
-                'description' => 'Ministry Leader',
+
+            RoleName::CommitteeLeader->value => [
+                'description' => RoleName::CommitteeLeader->label(),
                 'permissions' => [
-                    'announcement.create',
-                    'announcement.edit',
-                    'announcement.publish',
-                    'notification.create',
-                    'notification.send',
-                    'student.view',
-                    'student.view_hostel',
-                    'complaint.view',
-                    'complaint.update',
-                    'meeting.create',
-                    'event.create',
-                    'document.create',
+                    PermissionName::AnnouncementCreate,
+                    PermissionName::AnnouncementEdit,
+                    PermissionName::NotificationCreate,
+                    PermissionName::NotificationSend,
+                    PermissionName::MeetingCreate,
+                    PermissionName::MeetingEdit,
+                    PermissionName::EventCreate,
+                    PermissionName::EventEdit,
+                    PermissionName::DocumentCreate,
+                    PermissionName::DocumentPublish,
+                    PermissionName::ReportView,
                 ],
             ],
-            'committee_leader' => [
-                'description' => 'Committee Leader',
-                'permissions' => [
-                    'announcement.create',
-                    'announcement.edit',
-                    'notification.create',
-                    'meeting.create',
-                    'event.create',
-                    'document.create',
-                ],
-            ],
-            'student' => [
-                'description' => 'Student',
+
+            RoleName::Student->value => [
+                'description' => RoleName::Student->label(),
                 'permissions' => [],
             ],
         ];
 
-        foreach ($roles as $roleName => $roleData) {
-            $role = Role::firstOrCreate(
-                ['name' => $roleName],
-                ['description' => $roleData['description']]
+        foreach ($definitions as $name => $definition) {
+            $role = Role::updateOrCreate(
+                ['name' => $name],
+                ['description' => $definition['description']],
             );
 
-            $permissionIds = Permission::whereIn('name', $roleData['permissions'])->pluck('id');
+            $permissionIds = Permission::whereIn(
+                'name',
+                array_map(
+                    static fn (PermissionName|string $permission): string => $permission instanceof PermissionName
+                        ? $permission->value
+                        : $permission,
+                    $definition['permissions'],
+                ),
+            )->pluck('id');
+
             $role->permissions()->sync($permissionIds);
         }
     }
