@@ -129,7 +129,9 @@ class RoleSeeder extends Seeder
 
             RoleName::Student->value => [
                 'description' => RoleName::Student->label(),
-                'permissions' => [],
+                'permissions' => [
+                    PermissionName::PostComment,
+                ],
             ],
         ];
 
