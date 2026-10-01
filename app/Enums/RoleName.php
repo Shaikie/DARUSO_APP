@@ -15,6 +15,7 @@ enum RoleName: string
     case MinistryLeader = 'ministry_leader';
     case CommitteeLeader = 'committee_leader';
     case Student = 'student';
+    case UniversityLeadership = 'university_leadership';
 
     public function label(): string
     {
@@ -24,6 +25,7 @@ enum RoleName: string
             self::MinistryLeader => 'Ministry Leader',
             self::CommitteeLeader => 'Committee Leader',
             self::Student => 'Student',
+            self::UniversityLeadership => 'University Leadership',
         };
     }
 

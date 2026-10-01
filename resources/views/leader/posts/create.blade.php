@@ -1,0 +1,1 @@
+<x-app-layout>@section('title','Write post') @section('heading','Write a daily post') @section('subheading','Create a blog-style update for the DARUSO community.')<form method="POST" action="{{ route('leader.posts.store') }}">@csrf@include('leader.posts.form')</form></x-app-layout>

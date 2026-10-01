@@ -62,6 +62,7 @@ class NotificationController extends Controller
         return view('leader.notifications.create', [
             'audienceOptions' => $this->audienceRules->options(),
             'recipients' => User::query()
+                ->whereHas('studentProfile')
                 ->with('studentProfile')
                 ->orderBy('name')
                 ->limit(500)

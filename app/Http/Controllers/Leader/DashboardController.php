@@ -10,6 +10,7 @@ use App\Models\Event;
 use App\Models\LeaderAssignment;
 use App\Models\Meeting;
 use App\Models\Notification;
+use App\Models\Post;
 use App\Models\StudentProfile;
 use App\Services\NotificationDispatcher;
 use App\Services\ReportService;
@@ -89,6 +90,7 @@ class DashboardController extends Controller
                 ->latest()
                 ->limit(10)
                 ->get(),
+            'recentPosts' => Post::query()->with('author')->withCount(['likes','comments'])->latest('published_at')->limit(5)->get(),
             'sentNotifications' => Notification::query()
                 ->with('recipient')
                 ->where('sender_id', $user->getKey())

@@ -37,7 +37,7 @@
                         <label for="message" class="form-label fw-semibold">Message</label>
                         <textarea id="message" name="message" rows="6" required minlength="5"
                                   class="form-control @error('message') is-invalid @enderror">{{ old('message') }}</textarea>
-                        @error('message') <div class="invalid-feedback">{{ $message }}</div> @enderror>
+                        @error('message') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="mb-4">
@@ -51,7 +51,7 @@
                                 </option>
                             @endforeach
                         </select>
-                        @error('priority') <div class="invalid-feedback">{{ $message }}</div> @enderror>
+                        @error('priority') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="mb-4">

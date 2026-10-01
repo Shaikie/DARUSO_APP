@@ -14,6 +14,7 @@ use App\Http\Controllers\Leader\MeetingController as LeaderMeetingController;
 use App\Http\Controllers\Leader\MinistryController as LeaderMinistryController;
 use App\Http\Controllers\Leader\NotificationController as LeaderNotificationController;
 use App\Http\Controllers\Leader\PositionController as LeaderPositionController;
+use App\Http\Controllers\Leader\PostController as LeaderPostController;
 use App\Http\Controllers\Leader\ReportController as LeaderReportController;
 use App\Http\Controllers\Leader\RoleController as LeaderRoleController;
 use App\Http\Controllers\Leader\SettingController as LeaderSettingController;
@@ -26,6 +27,7 @@ use App\Http\Controllers\Student\DocumentController as StudentDocumentController
 use App\Http\Controllers\Student\EventController as StudentEventController;
 use App\Http\Controllers\Student\MeetingController as StudentMeetingController;
 use App\Http\Controllers\Student\NotificationController as StudentNotificationController;
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\Student\RepresentativeController as StudentRepresentativeController;
 use App\Http\Controllers\StudentProfileController;
 use Illuminate\Support\Facades\Route;
@@ -72,6 +74,12 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
 
         Route::resource('announcements', StudentAnnouncementController::class)->only(['index', 'show']);
+        Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
+        Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
+        Route::post('/posts/{post}/like', [PostController::class, 'like'])->name('posts.like');
+        Route::post('/posts/{post}/comments', [PostController::class, 'comment'])->name('posts.comments.store');
+        Route::delete('/posts/{post}/comments/{comment}', [PostController::class, 'deleteComment'])->name('posts.comments.destroy');
+        Route::post('/posts/{post}/share', [PostController::class, 'share'])->name('posts.share');
         Route::resource('notifications', StudentNotificationController::class)->only(['index', 'show', 'destroy']);
         Route::patch('notifications/read-all', [StudentNotificationController::class, 'markAllAsRead'])
             ->name('notifications.read-all');
@@ -112,6 +120,8 @@ Route::middleware('auth')->group(function (): void {
 
         // Communication
         Route::resource('announcements', LeaderAnnouncementController::class);
+        Route::resource('posts', LeaderPostController::class)->except(['show']);
+        Route::post('posts/{post}/publish', [LeaderPostController::class, 'publish'])->name('posts.publish');
         Route::post('announcements/{announcement}/submit', [LeaderAnnouncementController::class, 'submitForReview'])
             ->name('announcements.submit');
         Route::post('announcements/{announcement}/publish', [LeaderAnnouncementController::class, 'publish'])

@@ -195,4 +195,19 @@
             </x-page-card>
         </div>
     </div>
+
+    <x-page-card class="mt-4" icon="newspaper" title="Daily posts">
+        <x-slot:actions><a href="{{ route('leader.posts.index') }}" class="btn btn-sm btn-link">Manage posts</a></x-slot:actions>
+        @forelse($recentPosts as $post)
+            <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                <div>
+                    <a href="{{ route('student.posts.show', $post) }}" class="fw-semibold text-decoration-none">{{ $post->title }}</a>
+                    <div class="small text-muted">{{ $post->author?->name }} · {{ $post->published_at?->diffForHumans() }}</div>
+                </div>
+                <span class="small text-muted">{{ $post->likes_count }} likes · {{ $post->comments_count }} comments</span>
+            </div>
+        @empty
+            <x-empty-state icon="newspaper" title="No posts yet" description="Create the first daily community post." />
+        @endforelse
+    </x-page-card>
 </x-app-layout>

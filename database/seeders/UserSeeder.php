@@ -42,6 +42,10 @@ class UserSeeder extends Seeder
             RoleName::CommitteeLeader->value,
         ], leader: true);
 
+        $universityLeadership = $this->createUser('university@daruso.local', 'University Leadership', [
+            RoleName::UniversityLeadership->value,
+        ], leader: true);
+
         $student = $this->createUser('student@daruso.local', 'John Student', [
             RoleName::Student->value,
         ], profile: [
@@ -84,7 +88,7 @@ class UserSeeder extends Seeder
             ]);
         }
 
-        unset($admin, $secretary, $ministryLeader, $committeeLeader, $student, $roles);
+        unset($admin, $secretary, $ministryLeader, $committeeLeader, $universityLeadership, $student, $roles);
     }
 
     /**

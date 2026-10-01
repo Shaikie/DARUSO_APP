@@ -224,7 +224,7 @@ class User extends Authenticatable
 
     public function isLeader(): bool
     {
-        if ($this->hasRole(RoleName::Administrator) || $this->hasRole(RoleName::SecretaryGeneral)) {
+        if ($this->hasAnyRole([RoleName::Administrator, RoleName::SecretaryGeneral, RoleName::MinistryLeader, RoleName::CommitteeLeader, RoleName::UniversityLeadership])) {
             return true;
         }
 

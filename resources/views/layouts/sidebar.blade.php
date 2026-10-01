@@ -24,6 +24,7 @@
                 ['leader.dashboard', 'leader.dashboard', 'speedometer2', 'Dashboard', null],
                 ['leader.announcements.index', 'leader.announcements.*', 'megaphone', 'Announcements', 'announcement.create'],
                 ['leader.notifications.index', 'leader.notifications.*', 'bell', 'Notifications', 'notification.create'],
+                ['leader.posts.index', 'leader.posts.*', 'newspaper', 'Daily Posts', 'post.create'],
                 ['leader.students.index', 'leader.students.*', 'people', 'Students', 'student.view'],
                 ['leader.complaints.index', 'leader.complaints.*', 'exclamation-triangle', 'Complaints', 'complaint.view'],
                 ['leader.meetings.index', 'leader.meetings.*', 'calendar-event', 'Meetings', 'meeting.create'],
@@ -52,6 +53,7 @@
             @php($studentLinks = [
                 ['student.dashboard', 'student.dashboard', 'speedometer2', 'Dashboard'],
                 ['student.announcements.index', 'student.announcements.*', 'megaphone', 'Announcements'],
+                ['student.posts.index', 'student.posts.*', 'newspaper', 'Daily Posts'],
                 ['student.notifications.index', 'student.notifications.*', 'bell', 'Notifications'],
                 ['student.events.index', 'student.events.*', 'calendar-check', 'Events'],
                 ['student.meetings.index', 'student.meetings.*', 'calendar-event', 'Meetings'],

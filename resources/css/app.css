@@ -419,6 +419,20 @@ a.card:hover,
     overflow-y: auto;
 }
 
+/* Force the sidebar to remain a single vertical navigation column. */
+#sidebar-wrapper > nav.nav {
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    width: 100%;
+}
+
+#sidebar-wrapper > nav.nav > .daruso-sidebar-link {
+    width: auto;
+    flex: 0 0 auto;
+}
+
 #page-content-wrapper {
     min-width: 0;
     flex: 1 1 auto;

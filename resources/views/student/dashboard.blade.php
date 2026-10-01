@@ -160,4 +160,20 @@
             </x-page-card>
         </div>
     </div>
+
+    <x-page-card class="mt-4" icon="newspaper" title="Daily posts">
+        <x-slot:actions><a href="{{ route('student.posts.index') }}" class="btn btn-sm btn-link">View all</a></x-slot:actions>
+        @forelse($recentPosts as $post)
+            <div class="d-flex justify-content-between align-items-start gap-3 border-bottom py-3">
+                <div>
+                    <a href="{{ route('student.posts.show', $post) }}" class="fw-semibold text-decoration-none">{{ $post->title }}</a>
+                    <div class="small text-muted">{{ $post->author?->name }} · {{ $post->published_at?->diffForHumans() }}</div>
+                    <div class="small text-muted mt-1">{{ \Illuminate\Support\Str::limit($post->excerpt ?: strip_tags($post->content), 100) }}</div>
+                </div>
+                <div class="small text-muted text-nowrap">{{ $post->likes_count }} likes · {{ $post->comments_count }} comments</div>
+            </div>
+        @empty
+            <x-empty-state icon="newspaper" title="No daily posts" description="Leadership stories and community updates will appear here." />
+        @endforelse
+    </x-page-card>
 </x-app-layout>

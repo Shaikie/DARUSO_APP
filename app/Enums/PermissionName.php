@@ -20,6 +20,14 @@ enum PermissionName: string
     case NotificationCreate = 'notification.create';
     case NotificationSend = 'notification.send';
 
+    // Posts / social feed
+    case PostCreate = 'post.create';
+    case PostEdit = 'post.edit';
+    case PostPublish = 'post.publish';
+    case PostDelete = 'post.delete';
+    case PostComment = 'post.comment';
+    case PostModerate = 'post.moderate';
+
     // Students
     case StudentView = 'student.view';
     case StudentViewSensitive = 'student.view_sensitive';

@@ -14,6 +14,7 @@ use App\Models\LeadershipTerm;
 use App\Models\Meeting;
 use App\Models\Ministry;
 use App\Models\Notification;
+use App\Models\Post;
 use App\Models\Position;
 use App\Models\Role;
 use App\Models\Setting;
@@ -30,6 +31,7 @@ use App\Policies\LeadershipTermPolicy;
 use App\Policies\MeetingPolicy;
 use App\Policies\MinistryPolicy;
 use App\Policies\NotificationPolicy;
+use App\Policies\PostPolicy;
 use App\Policies\PositionPolicy;
 use App\Policies\RolePolicy;
 use App\Policies\SettingPolicy;
@@ -60,6 +62,7 @@ class AppServiceProvider extends ServiceProvider
         Meeting::class => MeetingPolicy::class,
         Ministry::class => MinistryPolicy::class,
         Notification::class => NotificationPolicy::class,
+        Post::class => PostPolicy::class,
         Position::class => PositionPolicy::class,
         Role::class => RolePolicy::class,
         Setting::class => SettingPolicy::class,

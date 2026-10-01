@@ -1,0 +1,1 @@
+<x-app-layout>@section('title','Edit post') @section('heading','Edit post') @section('subheading','Update your post before or after publication.')<form method="POST" action="{{ route('leader.posts.update',$post) }}">@csrf @method('PUT') @include('leader.posts.form',['post'=>$post])</form></x-app-layout>

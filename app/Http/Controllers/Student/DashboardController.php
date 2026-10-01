@@ -7,6 +7,7 @@ use App\Models\Announcement;
 use App\Models\Document;
 use App\Models\Event;
 use App\Models\Meeting;
+use App\Models\Post;
 use App\Services\AudienceResolver;
 use App\Services\NotificationDispatcher;
 use Illuminate\Http\Request;
@@ -49,6 +50,8 @@ class DashboardController extends Controller
             $user,
         )->get();
 
+        $recentPosts = Post::query()->published()->with('author')->withCount(['likes','comments'])->latest('published_at')->limit(4)->get();
+
         return view('student.dashboard', [
             'user' => $user,
             'profile' => $profile,
@@ -62,6 +65,7 @@ class DashboardController extends Controller
                 ->groupBy('status')
                 ->pluck('aggregate', 'status'),
             'openComplaints' => $user->complaints()->open()->count(),
+            'recentPosts' => $recentPosts,
             'documentCount' => Document::query()
                 ->whereIn('visibility', ['public', 'students'])
                 ->count(),
