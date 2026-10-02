@@ -1,9 +1,10 @@
 @php($user = auth()->user())
 @php($isLeader = $user->isLeader())
+@php($isAdmin = $user->hasRole(\App\Enums\RoleName::Administrator))
 
 <aside class="daruso-sidebar" id="sidebar-wrapper" aria-label="Main navigation">
     <div class="daruso-brand">
-        <a href="{{ $isLeader ? route('leader.dashboard') : route('student.dashboard') }}" class="daruso-brand-link">
+        <a href="{{ $isAdmin ? route('leader.dashboard') : route('student.posts.index') }}" class="daruso-brand-link">
             <span class="daruso-brand-mark"><i class="bi bi-broadcast-pin"></i></span>
             <span>
                 <strong>DARUSO</strong>
