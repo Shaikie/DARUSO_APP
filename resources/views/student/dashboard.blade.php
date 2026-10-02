@@ -1,179 +1,125 @@
 <x-app-layout>
-    @section('title', 'Dashboard')
-    @section('heading', 'Welcome, '.\Illuminate\Support\Str::before($user->name, ' '))
-    @section('subheading', $profile ? $profile->programme.' · Year '.$profile->year_of_study : 'Student dashboard')
+    @section('title', 'Home')
+    @section('eyebrow', 'DARUSO COMMUNITY')
+    @section('heading', 'Welcome back, '.\Illuminate\Support\Str::before($user->name, ' '))
+    @section('subheading', 'Stay informed, follow community stories and keep up with what is happening around you.')
 
     @section('actions')
         @can('create', App\Models\Complaint::class)
             <a href="{{ route('student.complaints.create') }}" class="btn btn-primary">
-                <i class="bi bi-plus-lg me-1"></i>Submit complaint
+                <i class="bi bi-plus-lg me-1"></i>Raise a complaint
             </a>
         @endcan
     @endsection
 
+    <section class="daruso-welcome-banner mb-4">
+        <div>
+            <span class="daruso-kicker">YOUR CAMPUS, YOUR VOICE</span>
+            <h2>Everything important, in one place.</h2>
+            <p>Read leadership updates, discover community posts, follow events and track the issues you have raised.</p>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{{ route('student.posts.index') }}" class="btn btn-light"><i class="bi bi-newspaper me-1"></i>Explore community</a>
+                <a href="{{ route('student.announcements.index') }}" class="btn btn-outline-light">View announcements</a>
+            </div>
+        </div>
+        <div class="daruso-welcome-art"><i class="bi bi-broadcast-pin"></i></div>
+    </section>
+
     <div class="row g-3 mb-4">
-        <div class="col-6 col-lg-3">
-            <x-stat-card icon="bell" label="Unread notifications" :value="$unreadNotifications"
-                         :href="route('student.notifications.index')" tone="danger" />
-        </div>
-        <div class="col-6 col-lg-3">
-            <x-stat-card icon="hourglass-split" label="Open complaints" :value="$openComplaints"
-                         :href="route('student.complaints.index')" tone="warning" />
-        </div>
-        <div class="col-6 col-lg-3">
-            <x-stat-card icon="file-earmark-text" label="Documents" :value="$documentCount"
-                         :href="route('student.documents.index')" tone="info" />
-        </div>
-        <div class="col-6 col-lg-3">
-            <x-stat-card icon="megaphone" label="Announcements" :value="$announcements->count()"
-                         :href="route('student.announcements.index')" tone="primary" />
-        </div>
+        <div class="col-6 col-xl-3"><x-stat-card icon="bell" label="Unread notifications" :value="$unreadNotifications" :href="route('student.notifications.index')" tone="danger" /></div>
+        <div class="col-6 col-xl-3"><x-stat-card icon="hourglass-split" label="Open complaints" :value="$openComplaints" :href="route('student.complaints.index')" tone="warning" /></div>
+        <div class="col-6 col-xl-3"><x-stat-card icon="calendar-event" label="Upcoming events" :value="$events->count()" :href="route('student.events.index')" tone="info" /></div>
+        <div class="col-6 col-xl-3"><x-stat-card icon="file-earmark-text" label="Available documents" :value="$documentCount" :href="route('student.documents.index')" tone="primary" /></div>
+    </div>
+
+    <div class="daruso-section-heading">
+        <div><span class="daruso-eyebrow">COMMUNITY</span><h2>Latest from DARUSO</h2></div>
+        <a href="{{ route('student.posts.index') }}">View all <i class="bi bi-arrow-right"></i></a>
     </div>
 
     <div class="row g-4">
-        <div class="col-12 col-lg-7">
-            <x-page-card icon="megaphone" title="Latest announcements">
-                <x-slot:actions>
-                    <a href="{{ route('student.announcements.index') }}" class="btn btn-sm btn-link">View all</a>
-                </x-slot:actions>
-
-                @forelse ($announcements as $announcement)
-                    <div class="border-bottom pb-3 mb-3">
-                        <div class="d-flex justify-content-between align-items-start gap-2">
-                            <a href="{{ route('student.announcements.show', $announcement) }}"
-                               class="fw-semibold text-decoration-none">
-                                {{ $announcement->title }}
-                            </a>
-                            <x-priority-badge :priority="$announcement->priority" />
+        <div class="col-12 col-xl-8">
+            <div class="daruso-feed">
+                @forelse ($recentPosts as $post)
+                    <article class="daruso-post-card">
+                        <div class="daruso-post-head">
+                            <div class="daruso-avatar">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($post->author?->name ?? 'D', 0, 1)) }}</div>
+                            <div class="min-w-0">
+                                <strong>{{ $post->author?->name ?? 'DARUSO' }}</strong>
+                                <small>Published {{ $post->published_at?->diffForHumans() }}</small>
+                            </div>
+                            <span class="daruso-post-label ms-auto">COMMUNITY</span>
                         </div>
-                        <p class="small text-muted mb-1">
-                            {{ \Illuminate\Support\Str::limit($announcement->content, 160) }}
-                        </p>
-                        <div class="small text-muted">
-                            {{ $announcement->author?->name }}
-                            · {{ $announcement->published_at?->diffForHumans() }}
-                        </div>
-                    </div>
-                @empty
-                    <x-empty-state icon="megaphone" title="No announcements yet"
-                                   description="Announcements addressed to you will appear here." />
-                @endforelse
-            </x-page-card>
 
-            <x-page-card class="mt-4" icon="calendar-check" title="Upcoming events">
-                <x-slot:actions>
-                    <a href="{{ route('student.events.index') }}" class="btn btn-sm btn-link">View all</a>
-                </x-slot:actions>
-
-                @forelse ($events as $event)
-                    <div class="d-flex justify-content-between align-items-center border-bottom py-2">
-                        <div>
-                            <a href="{{ route('student.events.show', $event) }}" class="text-decoration-none fw-semibold">
-                                {{ $event->title }}
+                        @if($post->cover_image_url)
+                            <a href="{{ route('student.posts.show', $post) }}" class="daruso-post-cover">
+                                <img src="{{ $post->cover_image_url }}" alt="{{ $post->title }}" loading="lazy">
                             </a>
-                            <div class="small text-muted">
-                                {{ $event->event_date->format('D, d M Y') }} · {{ $event->venue }}
+                        @endif
+
+                        <div class="daruso-post-body">
+                            <h3><a href="{{ route('student.posts.show', $post) }}">{{ $post->title }}</a></h3>
+                            <p>{{ $post->excerpt ?: \Illuminate\Support\Str::limit(strip_tags($post->content), 190) }}</p>
+                            <div class="daruso-post-meta">
+                                <span><i class="bi bi-heart"></i>{{ $post->likes_count }} likes</span>
+                                <span><i class="bi bi-chat"></i>{{ $post->comments_count }} comments</span>
+                                <a href="{{ route('student.posts.show', $post) }}">Read story <i class="bi bi-arrow-up-right"></i></a>
                             </div>
                         </div>
-                        <x-status-badge :status="$event->status" />
-                    </div>
+                    </article>
                 @empty
-                    <x-empty-state icon="calendar-check" title="No upcoming events"
-                                   description="Events addressed to you will appear here." />
+                    <div class="daruso-empty"><i class="bi bi-newspaper"></i><h3>No community posts yet</h3><p>Leadership stories and useful updates will appear here.</p></div>
                 @endforelse
-            </x-page-card>
-
-            <x-page-card class="mt-4" icon="calendar-event" title="Upcoming meetings">
-                <x-slot:actions>
-                    <a href="{{ route('student.meetings.index') }}" class="btn btn-sm btn-link">View all</a>
-                </x-slot:actions>
-
-                @forelse ($meetings as $meeting)
-                    <div class="d-flex justify-content-between align-items-center border-bottom py-2">
-                        <div>
-                            <a href="{{ route('student.meetings.show', $meeting) }}" class="text-decoration-none fw-semibold">
-                                {{ $meeting->title }}
-                            </a>
-                            <div class="small text-muted">
-                                {{ $meeting->meeting_date->format('D, d M Y') }}
-                                at {{ $meeting->meeting_time->format('H:i') }} · {{ $meeting->venue }}
-                            </div>
-                        </div>
-                        <x-status-badge :status="$meeting->status" />
-                    </div>
-                @empty
-                    <x-empty-state icon="calendar-event" title="No upcoming meetings"
-                                   description="Meetings you are invited to will appear here." />
-                @endforelse
-            </x-page-card>
+            </div>
         </div>
 
-        <div class="col-12 col-lg-5">
-            <x-page-card icon="bell" title="Recent notifications">
-                <x-slot:actions>
-                    <a href="{{ route('student.notifications.index') }}" class="btn btn-sm btn-link">View all</a>
-                </x-slot:actions>
+        <div class="col-12 col-xl-4">
+            <div class="daruso-side-stack">
+                <section class="daruso-panel">
+                    <div class="daruso-panel-head"><h3><i class="bi bi-megaphone"></i> Announcements</h3><a href="{{ route('student.announcements.index') }}">See all</a></div>
+                    @forelse($announcements->take(4) as $announcement)
+                        <a class="daruso-list-item" href="{{ route('student.announcements.show', $announcement) }}">
+                            <span class="daruso-list-icon"><i class="bi bi-megaphone"></i></span>
+                            <span><strong>{{ $announcement->title }}</strong><small>{{ $announcement->published_at?->diffForHumans() }}</small></span>
+                        </a>
+                    @empty
+                        <p class="text-muted small mb-0">No announcements yet.</p>
+                    @endforelse
+                </section>
 
-                @forelse ($recentNotifications as $notification)
-                    <a href="{{ route('student.notifications.show', $notification) }}"
-                       class="d-block text-decoration-none border-bottom py-2">
-                        <div class="d-flex justify-content-between align-items-start gap-2">
-                            <span class="fw-semibold small {{ $notification->isRead() ? 'text-muted' : '' }}">
-                                {{ $notification->title }}
-                            </span>
-                            @unless ($notification->isRead())
-                                <span class="badge text-bg-danger">New</span>
-                            @endunless
-                        </div>
-                        <div class="small text-muted">
-                            {{ \Illuminate\Support\Str::limit($notification->message, 70) }}
-                        </div>
-                    </a>
-                @empty
-                    <x-empty-state icon="bell" title="No notifications"
-                                   description="Notifications from leadership will appear here." />
-                @endforelse
-            </x-page-card>
+                <section class="daruso-panel">
+                    <div class="daruso-panel-head"><h3><i class="bi bi-calendar-check"></i> Coming up</h3><a href="{{ route('student.events.index') }}">See all</a></div>
+                    @forelse($events->take(3) as $event)
+                        <a class="daruso-event-item" href="{{ route('student.events.show', $event) }}">
+                            <span class="daruso-date-chip"><strong>{{ $event->event_date->format('d') }}</strong><small>{{ $event->event_date->format('M') }}</small></span>
+                            <span><strong>{{ $event->title }}</strong><small>{{ $event->venue }}</small></span>
+                        </a>
+                    @empty
+                        <p class="text-muted small mb-0">No upcoming events.</p>
+                    @endforelse
+                </section>
 
-            <x-page-card class="mt-4" icon="exclamation-triangle" title="My complaints">
-                <x-slot:actions>
-                    <a href="{{ route('student.complaints.index') }}" class="btn btn-sm btn-link">View all</a>
-                </x-slot:actions>
-
-                @forelse ($complaintStats as $status => $count)
-                    <div class="d-flex justify-content-between align-items-center py-1">
-                        <x-status-badge :status="\App\Enums\ComplaintStatus::from($status)" />
-                        <span class="fw-semibold">{{ $count }}</span>
-                    </div>
-                @empty
-                    <x-empty-state icon="inbox" title="No complaints submitted"
-                                   description="Raise a complaint and track its progress here.">
-                        @can('create', App\Models\Complaint::class)
-                            <x-slot:action>
-                                <a href="{{ route('student.complaints.create') }}" class="btn btn-sm btn-primary">
-                                    Submit a complaint
-                                </a>
-                            </x-slot:action>
-                        @endcan
-                    </x-empty-state>
-                @endforelse
-            </x-page-card>
+                <section class="daruso-panel">
+                    <div class="daruso-panel-head"><h3><i class="bi bi-bell"></i> Notifications</h3><a href="{{ route('student.notifications.index') }}">See all</a></div>
+                    @forelse($recentNotifications->take(3) as $notification)
+                        <a class="daruso-list-item" href="{{ route('student.notifications.show', $notification) }}">
+                            <span class="daruso-list-icon {{ $notification->isRead() ? '' : 'unread' }}"><i class="bi bi-dot"></i></span>
+                            <span><strong>{{ $notification->title }}</strong><small>{{ \Illuminate\Support\Str::limit($notification->message, 60) }}</small></span>
+                        </a>
+                    @empty
+                        <p class="text-muted small mb-0">You are all caught up.</p>
+                    @endforelse
+                </section>
+            </div>
         </div>
     </div>
 
-    <x-page-card class="mt-4" icon="newspaper" title="Daily posts">
-        <x-slot:actions><a href="{{ route('student.posts.index') }}" class="btn btn-sm btn-link">View all</a></x-slot:actions>
-        @forelse($recentPosts as $post)
-            <div class="d-flex justify-content-between align-items-start gap-3 border-bottom py-3">
-                <div>
-                    <a href="{{ route('student.posts.show', $post) }}" class="fw-semibold text-decoration-none">{{ $post->title }}</a>
-                    <div class="small text-muted">{{ $post->author?->name }} · {{ $post->published_at?->diffForHumans() }}</div>
-                    <div class="small text-muted mt-1">{{ \Illuminate\Support\Str::limit($post->excerpt ?: strip_tags($post->content), 100) }}</div>
-                </div>
-                <div class="small text-muted text-nowrap">{{ $post->likes_count }} likes · {{ $post->comments_count }} comments</div>
-            </div>
-        @empty
-            <x-empty-state icon="newspaper" title="No daily posts" description="Leadership stories and community updates will appear here." />
-        @endforelse
-    </x-page-card>
+    <div class="daruso-section-heading mt-5">
+        <div><span class="daruso-eyebrow">YOUR ACTIVITY</span><h2>Stay on top of things</h2></div>
+    </div>
+    <div class="row g-3">
+        <div class="col-12 col-md-4"><a class="daruso-action-card" href="{{ route('student.complaints.index') }}"><span><i class="bi bi-life-preserver"></i></span><div><strong>My complaints</strong><small>Track issues you have submitted.</small></div><i class="bi bi-arrow-up-right ms-auto"></i></a></div>
+        <div class="col-12 col-md-4"><a class="daruso-action-card" href="{{ route('student.meetings.index') }}"><span><i class="bi bi-calendar-event"></i></span><div><strong>Meetings</strong><small>See meetings you are invited to.</small></div><i class="bi bi-arrow-up-right ms-auto"></i></a></div>
+        <div class="col-12 col-md-4"><a class="daruso-action-card" href="{{ route('student.documents.index') }}"><span><i class="bi bi-folder2-open"></i></span><div><strong>Documents</strong><small>Access shared DARUSO documents.</small></div><i class="bi bi-arrow-up-right ms-auto"></i></a></div>
+    </div>
 </x-app-layout>
