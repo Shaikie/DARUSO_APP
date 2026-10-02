@@ -30,6 +30,7 @@ use App\Http\Controllers\Student\NotificationController as StudentNotificationCo
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\Student\RepresentativeController as StudentRepresentativeController;
 use App\Http\Controllers\StudentProfileController;
+use App\Enums\RoleName;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
@@ -55,9 +56,11 @@ Route::middleware('auth')->group(function (): void {
             return view('student.onboarding');
         }
 
-        return $user->isLeader()
-            ? redirect()->route('leader.dashboard')
-            : redirect()->route('student.dashboard');
+        if ($user->hasRole(RoleName::Administrator)) {
+            return redirect()->route('leader.dashboard');
+        }
+
+        return redirect()->route('student.posts.index');
     })->name('dashboard');
 
     /*
@@ -77,6 +80,7 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
         Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
         Route::post('/posts/{post}/like', [PostController::class, 'like'])->name('posts.like');
+        Route::post('/posts/{post}/react', [PostController::class, 'react'])->name('posts.react');
         Route::post('/posts/{post}/comments', [PostController::class, 'comment'])->name('posts.comments.store');
         Route::delete('/posts/{post}/comments/{comment}', [PostController::class, 'deleteComment'])->name('posts.comments.destroy');
         Route::post('/posts/{post}/share', [PostController::class, 'share'])->name('posts.share');
