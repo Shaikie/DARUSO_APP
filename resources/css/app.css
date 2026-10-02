@@ -599,3 +599,109 @@ button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
+
+/* -------------------------------------------------------------------------
+   Social reactions
+   ------------------------------------------------------------------------- */
+.daruso-reaction-menu {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.daruso-reaction-menu summary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 42px;
+    padding: 8px 10px;
+    list-style: none;
+    cursor: pointer;
+    color: #536071;
+    font-size: .76rem;
+    font-weight: 600;
+    border-radius: 9px;
+    user-select: none;
+}
+
+.daruso-reaction-menu summary::-webkit-details-marker { display: none; }
+.daruso-reaction-menu summary:hover,
+.daruso-reaction-menu summary.has-reaction {
+    color: var(--daruso-primary);
+    background: var(--daruso-primary-soft);
+}
+
+.daruso-reaction-picker {
+    position: absolute;
+    z-index: 20;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    display: flex;
+    gap: 5px;
+    padding: 7px;
+    transform: translateX(-50%);
+    border: 1px solid var(--daruso-border);
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 14px 34px rgba(20, 32, 56, .14);
+}
+
+.daruso-reaction-picker form { margin: 0; }
+
+.daruso-reaction-picker button {
+    display: flex;
+    min-width: 58px;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 7px 6px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+}
+
+.daruso-reaction-picker button:hover,
+.daruso-reaction-picker button.selected {
+    background: var(--daruso-primary-soft);
+}
+
+.daruso-reaction-picker button span { font-size: 1.15rem; line-height: 1; }
+.daruso-reaction-picker button small { color: var(--daruso-muted); font-size: .58rem; font-weight: 600; }
+
+.daruso-reaction-summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 1px;
+}
+
+.daruso-reaction-summary span {
+    display: inline-grid;
+    width: 18px;
+    height: 18px;
+    place-items: center;
+    margin-left: -2px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background: #f5f7fa;
+    font-size: .58rem;
+}
+
+.daruso-reaction-counts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 17px 14px;
+    color: var(--daruso-muted);
+    font-size: .72rem;
+}
+
+@media (max-width: 575.98px) {
+    .daruso-reaction-picker {
+        left: 0;
+        transform: none;
+        max-width: calc(100vw - 28px);
+    }
+
+    .daruso-reaction-picker button { min-width: 52px; }
+}
