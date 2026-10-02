@@ -1,82 +1,92 @@
-{{--
-    Permission-aware sidebar navigation.
-
-    Every entry is hidden when the user lacks the permission, but hiding is a
-    usability measure only: the matching routes are still protected by policies
-    and middleware, so a direct request cannot bypass this.
---}}
 @php($user = auth()->user())
 @php($isLeader = $user->isLeader())
 
-<div class="bg-white border-end d-flex flex-column" id="sidebar-wrapper">
-    <div class="p-3 border-bottom">
-        <a href="{{ $isLeader ? route('leader.dashboard') : route('student.dashboard') }}"
-           class="text-decoration-none d-flex align-items-center gap-2">
-            <i class="bi bi-megaphone-fill fs-4 text-primary"></i>
-            <span class="fw-bold fs-5 text-dark">DARUSO</span>
+<aside class="daruso-sidebar" id="sidebar-wrapper" aria-label="Main navigation">
+    <div class="daruso-brand">
+        <a href="{{ $isLeader ? route('leader.dashboard') : route('student.dashboard') }}" class="daruso-brand-link">
+            <span class="daruso-brand-mark"><i class="bi bi-broadcast-pin"></i></span>
+            <span>
+                <strong>DARUSO</strong>
+                <small>Student community</small>
+            </span>
         </a>
+        <button class="daruso-mobile-close d-lg-none" id="sidebar-close" type="button" aria-label="Close navigation">
+            <i class="bi bi-x-lg"></i>
+        </button>
     </div>
 
-    <nav class="nav flex-column py-2 flex-grow-1 overflow-auto">
+    <div class="daruso-sidebar-profile">
+        <div class="daruso-avatar">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($user->name, 0, 1)) }}</div>
+        <div class="min-w-0">
+            <div class="fw-semibold text-truncate">{{ $user->name }}</div>
+            <small>{{ $isLeader ? 'DARUSO leadership' : 'Student' }}</small>
+        </div>
+    </div>
+
+    <nav class="daruso-nav">
+        <div class="daruso-nav-label">Workspace</div>
+
         @if ($isLeader)
-            {{-- Each entry: [href route, active pattern, icon, label, permission]. --}}
             @php($leaderLinks = [
                 ['leader.dashboard', 'leader.dashboard', 'speedometer2', 'Dashboard', null],
+                ['leader.posts.index', 'leader.posts.*', 'newspaper', 'Community posts', 'post.create'],
                 ['leader.announcements.index', 'leader.announcements.*', 'megaphone', 'Announcements', 'announcement.create'],
                 ['leader.notifications.index', 'leader.notifications.*', 'bell', 'Notifications', 'notification.create'],
-                ['leader.posts.index', 'leader.posts.*', 'newspaper', 'Daily Posts', 'post.create'],
                 ['leader.students.index', 'leader.students.*', 'people', 'Students', 'student.view'],
-                ['leader.complaints.index', 'leader.complaints.*', 'exclamation-triangle', 'Complaints', 'complaint.view'],
+                ['leader.complaints.index', 'leader.complaints.*', 'life-preserver', 'Complaints', 'complaint.view'],
                 ['leader.meetings.index', 'leader.meetings.*', 'calendar-event', 'Meetings', 'meeting.create'],
                 ['leader.events.index', 'leader.events.*', 'calendar-check', 'Events', 'event.create'],
-                ['leader.documents.index', 'leader.documents.*', 'file-earmark-text', 'Documents', null],
-                ['leader.ministries.index', 'leader.ministries.*', 'building', 'Ministries', null],
-                ['leader.committees.index', 'leader.committees.*', 'people-fill', 'Committees', null],
-                ['leader.leadership.index', 'leader.leadership.*', 'person-badge', 'Leadership', null],
-                ['leader.leadership-terms.index', 'leader.leadership-terms.*', 'calendar-range', 'Leadership Terms', 'term.manage'],
-                ['leader.positions.index', 'leader.positions.*', 'diagram-3', 'Positions', 'position.manage'],
-                ['leader.reports.index', 'leader.reports.*', 'bar-chart', 'Reports', 'report.view'],
-                ['leader.audit-logs.index', 'leader.audit-logs.*', 'journal-text', 'Audit Logs', 'audit.view'],
-                ['leader.roles.index', 'leader.roles.*', 'shield-lock', 'Roles & Permissions', 'role.manage'],
-                ['leader.settings.index', 'leader.settings.*', 'gear', 'Settings', 'system.settings'],
+                ['leader.documents.index', 'leader.documents.*', 'folder2-open', 'Documents', null],
             ])
-
             @foreach ($leaderLinks as [$href, $pattern, $icon, $label, $permission])
                 @if (! $permission || $user->can($permission))
-                    <a href="{{ route($href) }}"
-                       class="nav-link daruso-sidebar-link {{ request()->routeIs($pattern) ? 'active fw-semibold bg-primary-subtle' : 'text-body' }}">
-                        <i class="bi bi-{{ $icon }}"></i>{{ $label }}
+                    <a href="{{ route($href) }}" class="daruso-nav-link {{ request()->routeIs($pattern) ? 'active' : '' }}">
+                        <i class="bi bi-{{ $icon }}"></i><span>{{ $label }}</span>
                     </a>
                 @endif
             @endforeach
+
+            <div class="daruso-nav-label mt-3">Administration</div>
+            @php($adminLinks = [
+                ['leader.ministries.index', 'leader.ministries.*', 'building', 'Ministries'],
+                ['leader.committees.index', 'leader.committees.*', 'diagram-3', 'Committees'],
+                ['leader.leadership.index', 'leader.leadership.*', 'person-badge', 'Leadership'],
+                ['leader.reports.index', 'leader.reports.*', 'bar-chart', 'Reports'],
+                ['leader.audit-logs.index', 'leader.audit-logs.*', 'journal-text', 'Audit logs'],
+                ['leader.settings.index', 'leader.settings.*', 'gear', 'Settings'],
+            ])
+            @foreach ($adminLinks as [$href, $pattern, $icon, $label])
+                <a href="{{ route($href) }}" class="daruso-nav-link {{ request()->routeIs($pattern) ? 'active' : '' }}">
+                    <i class="bi bi-{{ $icon }}"></i><span>{{ $label }}</span>
+                </a>
+            @endforeach
         @else
             @php($studentLinks = [
-                ['student.dashboard', 'student.dashboard', 'speedometer2', 'Dashboard'],
+                ['student.dashboard', 'student.dashboard', 'house', 'Home'],
+                ['student.posts.index', 'student.posts.*', 'newspaper', 'Community'],
                 ['student.announcements.index', 'student.announcements.*', 'megaphone', 'Announcements'],
-                ['student.posts.index', 'student.posts.*', 'newspaper', 'Daily Posts'],
                 ['student.notifications.index', 'student.notifications.*', 'bell', 'Notifications'],
                 ['student.events.index', 'student.events.*', 'calendar-check', 'Events'],
                 ['student.meetings.index', 'student.meetings.*', 'calendar-event', 'Meetings'],
-                ['student.complaints.index', 'student.complaints.*', 'exclamation-triangle', 'Complaints'],
-                ['student.documents.index', 'student.documents.*', 'file-earmark-text', 'Documents'],
-                ['student.representatives.index', 'student.representatives.*', 'person-badge', 'Representatives'],
-                ['profile.edit', 'profile.edit', 'person', 'Profile'],
+                ['student.complaints.index', 'student.complaints.*', 'life-preserver', 'Complaints'],
+                ['student.documents.index', 'student.documents.*', 'folder2-open', 'Documents'],
+                ['student.representatives.index', 'student.representatives.*', 'people', 'Representatives'],
             ])
-
             @foreach ($studentLinks as [$href, $pattern, $icon, $label])
-                <a href="{{ route($href) }}"
-                   class="nav-link daruso-sidebar-link {{ request()->routeIs($pattern) ? 'active fw-semibold bg-primary-subtle' : 'text-body' }}">
-                    <i class="bi bi-{{ $icon }}"></i>{{ $label }}
+                <a href="{{ route($href) }}" class="daruso-nav-link {{ request()->routeIs($pattern) ? 'active' : '' }}">
+                    <i class="bi bi-{{ $icon }}"></i><span>{{ $label }}</span>
                 </a>
             @endforeach
+
+            <div class="daruso-nav-label mt-3">Account</div>
+            <a href="{{ route('profile.edit') }}" class="daruso-nav-link {{ request()->routeIs('profile.edit') ? 'active' : '' }}">
+                <i class="bi bi-person-circle"></i><span>Profile</span>
+            </a>
         @endif
     </nav>
 
-    <div class="p-3 border-top small text-muted">
-        @if ($isLeader)
-            <i class="bi bi-shield-check me-1"></i>Leadership access
-        @else
-            <i class="bi bi-mortarboard me-1"></i>Student access
-        @endif
+    <div class="daruso-sidebar-footer">
+        <div class="daruso-status-dot"></div>
+        <span>{{ $isLeader ? 'Leadership workspace' : 'Connected to DARUSO' }}</span>
     </div>
-</div>
+</aside>
