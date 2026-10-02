@@ -4,36 +4,34 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <meta name="theme-color" content="#e8ecf3">
-
-    <title>@yield('title', 'Dashboard') &middot; {{ app(\App\Services\SettingService::class)->get('system_name', 'DARUSO') }}</title>
-
+    <meta name="theme-color" content="#ffffff">
+    <title>@yield('title', 'Dashboard') · {{ app(\App\Services\SettingService::class)->get('system_name', 'DARUSO') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
-    <div class="d-flex align-items-stretch" id="wrapper">
+    <div class="daruso-app-shell" id="daruso-app">
         @auth
             @include('layouts.sidebar')
         @endauth
 
-        <div id="page-content-wrapper" class="flex-grow-1 d-flex flex-column">
+        <div class="daruso-main">
             @auth
                 @include('layouts.topbar')
             @endauth
 
-            <main class="container-fluid p-3 p-lg-4 flex-grow-1">
+            <main class="daruso-page">
                 <x-flash-messages />
 
-                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-4">
+                <div class="daruso-page-header">
                     <div>
-                        <h1 class="h3 mb-1 fw-bold">@yield('heading', 'Dashboard')</h1>
+                        <div class="daruso-eyebrow">@yield('eyebrow')</div>
+                        <h1 class="daruso-page-title">@yield('heading', 'Dashboard')</h1>
                         @hasSection('subheading')
-                            <p class="text-muted mb-0">@yield('subheading')</p>
+                            <p class="daruso-page-subtitle">@yield('subheading')</p>
                         @endif
                     </div>
                     @hasSection('actions')
-                        <div class="d-flex flex-wrap gap-2">@yield('actions')</div>
+                        <div class="daruso-page-actions">@yield('actions')</div>
                     @endif
                 </div>
 
@@ -41,12 +39,15 @@
                 @yield('content')
             </main>
 
-            <footer class="container-fluid px-4 py-3 text-muted small border-top bg-white">
-                &copy; {{ now()->year }} {{ app(\App\Services\SettingService::class)->get('organisation_name', 'Daruso Students Organisation') }}
+            <footer class="daruso-footer">
+                <span>© {{ now()->year }} {{ app(\App\Services\SettingService::class)->get('organisation_name', 'Daruso Students Organisation') }}</span>
+                <span class="d-none d-md-inline">Built for better student representation.</span>
             </footer>
         </div>
-    </div>
 
-    @stack('scripts')
+        @auth
+            <div class="daruso-mobile-overlay" id="daruso-mobile-overlay"></div>
+        @endauth
+    </div>
 </body>
 </html>
