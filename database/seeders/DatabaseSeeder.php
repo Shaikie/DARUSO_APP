@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             LeadershipSeeder::class,
             SettingSeeder::class,
             CommunicationSeeder::class,
+            PostSeeder::class,
             ComplaintSeeder::class,
             DocumentSeeder::class,
             NotificationSeeder::class,
