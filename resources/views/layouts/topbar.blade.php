@@ -1,7 +1,7 @@
 @php($user = auth()->user())
 @php($unreadCount = $user->receivedNotifications()->whereNull('read_at')->count())
 @php($notificationsRoute = $user->isLeader() ? route('leader.notifications.index') : route('student.notifications.index'))
-@php($dashboardRoute = $user->isLeader() ? route('leader.dashboard') : route('student.dashboard'))
+@php($dashboardRoute = $user->hasRole(\App\Enums\RoleName::Administrator) ? route('leader.dashboard') : route('student.posts.index'))
 
 <header class="daruso-topbar">
     <div class="d-flex align-items-center gap-2 min-w-0">
@@ -10,7 +10,7 @@
         </button>
         <a href="{{ $dashboardRoute }}" class="daruso-mobile-brand d-lg-none">DARUSO</a>
         <div class="daruso-topbar-context d-none d-lg-block">
-            <span>{{ $user->isLeader() ? 'Leadership workspace' : 'Student community' }}</span>
+            <span>{{ $user->hasRole(\App\Enums\RoleName::Administrator) ? 'Administration workspace' : 'DARUSO Community' }}</span>
             <strong>@yield('heading', 'Dashboard')</strong>
         </div>
     </div>
