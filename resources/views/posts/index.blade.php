@@ -11,12 +11,6 @@
 
     <div class="daruso-feed-layout">
         <div class="daruso-feed-column">
-            <div class="daruso-feed-tabs">
-                <span class="active">Latest</span>
-                <span>Community stories</span>
-                <span>Updates</span>
-            </div>
-
             @forelse($posts as $post)
                 <article class="daruso-post-card">
                     <div class="daruso-post-head">
@@ -43,8 +37,15 @@
                         <span><i class="bi bi-heart-fill"></i> {{ $post->likes_count }}</span>
                         <span>{{ $post->comments_count }} comments · {{ $post->share_count }} shares</span>
                     </div>
+
                     <div class="daruso-post-actions">
-                        <a href="{{ route('student.posts.show',$post) }}"><i class="bi bi-heart"></i> Like</a>
+                        <form method="POST" action="{{ route('student.posts.like',$post) }}">
+                            @csrf
+                            <button type="submit" class="{{ $post->liked_by_user ? 'is-liked' : '' }}">
+                                <i class="bi bi-heart{{ $post->liked_by_user ? '-fill' : '' }}"></i>
+                                {{ $post->liked_by_user ? 'Liked' : 'Like' }}
+                            </button>
+                        </form>
                         <a href="{{ route('student.posts.show',$post) }}"><i class="bi bi-chat"></i> Comment</a>
                         <form method="POST" action="{{ route('student.posts.share',$post) }}" onsubmit="return sharePost(event, '{{ route('student.posts.show',$post) }}');">
                             @csrf
@@ -62,7 +63,7 @@
         <aside class="daruso-feed-sidebar">
             <section class="daruso-panel">
                 <div class="daruso-panel-head"><h3>About the feed</h3></div>
-                <p class="small text-muted mb-0">A shared space for leadership stories, useful student information and community conversations. Open a post to react, comment and share.</p>
+                <p class="small text-muted mb-0">A shared space for leadership stories, useful student information and community conversations. Open a post to join the discussion.</p>
             </section>
             <section class="daruso-panel">
                 <div class="daruso-panel-head"><h3>Quick links</h3></div>
