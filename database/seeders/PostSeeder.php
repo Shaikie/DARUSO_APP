@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Post;
+use App\Models\PostComment;
 use App\Models\PostReaction;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -95,6 +96,22 @@ class PostSeeder extends Seeder
                     PostReaction::updateOrCreate(
                         ['post_id' => $post->getKey(), 'user_id' => $student->getKey()],
                         ['type' => ['love', 'celebrate', 'support', 'insightful'][$index]],
+                    );
+                }
+
+                if ($index < 3) {
+                    PostComment::firstOrCreate(
+                        [
+                            'post_id' => $post->getKey(),
+                            'user_id' => $student->getKey(),
+                        ],
+                        [
+                            'content' => [
+                                'This is a useful update. Looking forward to seeing more community stories here.',
+                                'I like the direction. It makes information much easier to discover.',
+                                'This is exactly the kind of conversation students need.',
+                            ][$index],
+                        ],
                     );
                 }
             }
