@@ -30,7 +30,7 @@
         @if ($isLeader)
             @php($leaderLinks = [
                 ['leader.dashboard', 'leader.dashboard', 'speedometer2', 'Dashboard', null],
-                ['leader.posts.index', 'leader.posts.*', 'newspaper', 'Community posts', 'post.create'],
+                ['student.posts.index', 'student.posts.*', 'newspaper', 'Community', null],
                 ['leader.announcements.index', 'leader.announcements.*', 'megaphone', 'Announcements', 'announcement.create'],
                 ['leader.notifications.index', 'leader.notifications.*', 'bell', 'Notifications', 'notification.create'],
                 ['leader.students.index', 'leader.students.*', 'people', 'Students', 'student.view'],
@@ -55,6 +55,7 @@
                 ['leader.reports.index', 'leader.reports.*', 'bar-chart', 'Reports'],
                 ['leader.audit-logs.index', 'leader.audit-logs.*', 'journal-text', 'Audit logs'],
                 ['leader.settings.index', 'leader.settings.*', 'gear', 'Settings'],
+                ['leader.posts.index', 'leader.posts.*', 'pencil-square', 'Post management'],
             ])
             @foreach ($adminLinks as [$href, $pattern, $icon, $label])
                 <a href="{{ route($href) }}" class="daruso-nav-link {{ request()->routeIs($pattern) ? 'active' : '' }}">
