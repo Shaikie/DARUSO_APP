@@ -69,6 +69,7 @@ jobs:
           routes/auth.php
           tests/Feature/Auth/RegistrationTest.php
           tests/Feature/LeadershipAccessTest.php
+          tests/Feature/MeetingEventTest.php
           tests/Feature/ProfileTest.php
           tests/Feature/StudentVerificationTest.php
 
