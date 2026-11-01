@@ -4,11 +4,15 @@ namespace App\Http\Controllers\Leader;
 
 use App\Enums\StudentStatus;
 use App\Http\Controllers\Controller;
+use Illuminate\Auth\Events\Registered;
 use App\Http\Requests\StoreStudentProfileRequest;
 use App\Models\StudentProfile;
 use App\Models\User;
 use App\Services\AuditLogger;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -80,17 +84,24 @@ class StudentController extends Controller
     {
         $this->authorize('create', StudentProfile::class);
 
-        $user = User::create([
-            ...$request->accountPayload(),
-            // A generated temporary password; the student resets it themselves.
-            'password' => 'password',
-            'email_verified_at' => now(),
-        ]);
+        [$user, $profile] = DB::transaction(function () use ($request): array {
+            $user = User::create([
+                ...$request->accountPayload(),
+                // No shared/default password. The student receives a one-time
+                // password-reset link and must establish their own credential.
+                'password' => Str::random(64),
+            ]);
 
-        $profile = $user->studentProfile()->create([
-            ...$request->academicPayload(),
-            'status' => $request->input('status', StudentStatus::Active->value),
-        ]);
+            $profile = $user->studentProfile()->create([
+                ...$request->academicPayload(),
+                'status' => StudentStatus::PendingVerification->value,
+            ]);
+
+            return [$user, $profile];
+        });
+
+        event(new Registered($user));
+        Password::sendResetLink(['email' => $user->email]);
 
         $this->audit->log('created', $profile, null, [
             'registration_number' => $profile->registration_number,
@@ -149,13 +160,13 @@ class StudentController extends Controller
             ->with('success', 'Student record updated.');
     }
 
-    public function destroy(StudentProfile $student): RedirectResponse
+    public function destroy(Request $request, StudentProfile $student): RedirectResponse
     {
         $this->authorize('delete', $student);
 
         $this->audit->log('deleted', $student, $student->only(['registration_number']), null, $request);
 
-        $student->user->delete();
+        DB::transaction(fn () => $student->user->delete());
 
         return redirect()
             ->route('leader.students.index')

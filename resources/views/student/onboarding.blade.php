@@ -32,7 +32,7 @@
                                    min="1" max="10"
                                    class="form-control @error('year_of_study') is-invalid @enderror"
                                    value="{{ old('year_of_study', 1) }}">
-                            @error('year_of_study') <div class="invalid-feedback">{{ $message }}</div> @enderror>
+                            @error('year_of_study') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-12">

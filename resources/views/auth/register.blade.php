@@ -25,7 +25,7 @@
             <label for="password" class="form-label small fw-semibold">Password</label>
             <input type="password" id="password" name="password" required autocomplete="new-password"
                    class="form-control @error('password') is-invalid @enderror">
-            @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror>
+            @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
             <div class="form-text">At least 8 characters.</div>
         </div>
 
