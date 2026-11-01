@@ -14,7 +14,7 @@ class EnsureActiveStudent
         $profile = $request->user()?->studentProfile;
 
         if (! $profile) {
-            return redirect()->route('dashboard');
+            abort(403, 'An active student record is required to access this service.');
         }
 
         if ($profile->status !== StudentStatus::Active) {
