@@ -74,10 +74,8 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     */
 
     Route::prefix('student')->name('student.')->group(function (): void {
-        Route::middleware('student.active')->group(function (): void {
-            Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
-
-            Route::resource('announcements', StudentAnnouncementController::class)->only(['index', 'show']);
+        // The community feed is available to authenticated users, including leaders.
+        // Student-service records remain protected by the active-student gate.
             Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
             Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
             Route::post('/posts/{post}/like', [PostController::class, 'like'])->name('posts.like');
@@ -85,6 +83,11 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
             Route::post('/posts/{post}/comments', [PostController::class, 'comment'])->name('posts.comments.store');
             Route::delete('/posts/{post}/comments/{comment}', [PostController::class, 'deleteComment'])->name('posts.comments.destroy');
             Route::post('/posts/{post}/share', [PostController::class, 'share'])->name('posts.share');
+
+        Route::middleware('student.active')->group(function (): void {
+            Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
+
+            Route::resource('announcements', StudentAnnouncementController::class)->only(['index', 'show']);
             Route::resource('notifications', StudentNotificationController::class)->only(['index', 'show', 'destroy']);
             Route::patch('notifications/read-all', [StudentNotificationController::class, 'markAllAsRead'])
                 ->name('notifications.read-all');
