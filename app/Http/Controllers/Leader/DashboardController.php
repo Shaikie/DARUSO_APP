@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Leader;
 
+use App\Enums\StudentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;
 use App\Models\AuditLog;
@@ -56,7 +57,8 @@ class DashboardController extends Controller
                     ->whereNull('assigned_ministry_id')
                     ->whereNull('assigned_leader_id')
                     ->count(),
-                'total_students' => StudentProfile::query()->count(),
+                'total_students' => StudentProfile::query()->where('status', StudentStatus::Active->value)->count(),
+                'pending_students' => StudentProfile::query()->where('status', StudentStatus::PendingVerification->value)->count(),
                 'active_leaders' => LeaderAssignment::query()
                     ->whereHas('term', fn ($query) => $query->where('is_active', true))
                     ->distinct('user_id')
@@ -90,7 +92,7 @@ class DashboardController extends Controller
                 ->latest()
                 ->limit(10)
                 ->get(),
-            'recentPosts' => Post::query()->with('author')->withCount(['likes','comments'])->latest('published_at')->limit(5)->get(),
+            'recentPosts' => Post::query()->with('author')->withCount(['likes', 'comments'])->latest('published_at')->limit(5)->get(),
             'sentNotifications' => Notification::query()
                 ->with('recipient')
                 ->where('sender_id', $user->getKey())

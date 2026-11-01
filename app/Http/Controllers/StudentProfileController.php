@@ -7,6 +7,7 @@ use App\Enums\StudentStatus;
 use App\Http\Requests\StoreStudentProfileRequest;
 use App\Models\Role;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Onboarding for a newly registered account.
@@ -28,19 +29,21 @@ class StudentProfileController extends Controller
                 ->with('error', 'Your student record already exists.');
         }
 
-        $user->studentProfile()->create([
-            ...$request->academicPayload(),
-            'status' => StudentStatus::Active->value,
-        ]);
+        DB::transaction(function () use ($user, $request): void {
+            $user->studentProfile()->create([
+                ...$request->academicPayload(),
+                // Self-submitted academic details must be reviewed by an
+                // authorised leader before the student is marked active.
+                'status' => StudentStatus::PendingVerification->value,
+            ]);
 
-        // Newly onboarded students are granted the Student role so the
-        // student-only areas become reachable.
-        $studentRole = Role::firstOrCreate(
-            ['name' => RoleName::Student->value],
-            ['description' => RoleName::Student->label()],
-        );
+            $studentRole = Role::firstOrCreate(
+                ['name' => RoleName::Student->value],
+                ['description' => RoleName::Student->label()],
+            );
 
-        $user->roles()->syncWithoutDetaching([$studentRole->getKey()]);
+            $user->roles()->syncWithoutDetaching([$studentRole->getKey()]);
+        });
 
         return redirect()->route('student.dashboard')
             ->with('success', 'Your student record has been created.');

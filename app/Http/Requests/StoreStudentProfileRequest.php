@@ -46,6 +46,7 @@ class StoreStudentProfileRequest extends FormRequest
             'name' => ['sometimes', 'string', 'max:255'],
             'email' => [
                 'sometimes',
+                'lowercase',
                 'email',
                 'max:255',
                 ValidationRule::unique('users', 'email')->ignore($profile?->user_id),
