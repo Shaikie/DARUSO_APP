@@ -7,8 +7,8 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Restricts leadership routes to users with an actual leadership assignment,
- * leadership role or leader profile.
+ * Restricts leadership routes to users with leadership membership or
+ * explicitly granted leadership permissions.
  */
 class EnsureLeader
 {
@@ -20,7 +20,11 @@ class EnsureLeader
             return redirect()->route('login');
         }
 
-        abort_unless($user->isLeader(), 403, 'You are not authorised to access the leadership area.');
+        abort_unless(
+            $user->isLeader() || $user->grantedPermissions()->isNotEmpty(),
+            403,
+            'You are not authorised to access the leadership area.',
+        );
 
         return $next($request);
     }
