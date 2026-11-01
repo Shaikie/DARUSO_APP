@@ -72,7 +72,7 @@
                                 </option>
                             @endforeach
                         </select>
-                        @error('leadership_term_id') <div class="invalid-feedback">{{ $message }}</div> @enderror>
+                        @error('leadership_term_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <button class="btn btn-primary">

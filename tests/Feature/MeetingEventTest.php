@@ -7,6 +7,7 @@ use App\Enums\PermissionName;
 use App\Models\AudienceRule;
 use App\Models\Event;
 use App\Models\Meeting;
+use App\Models\StudentProfile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -264,6 +265,8 @@ class MeetingEventTest extends TestCase
         $leader = $this->userWithRole('scheduler', [
             PermissionName::MeetingCreate->value,
         ]);
+
+        StudentProfile::factory()->create(['user_id' => $leader->getKey()]);
 
         // The organizer is set explicitly, so the organizer policy admits all
         // three records and the `upcoming` filter is what is under test.

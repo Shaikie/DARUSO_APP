@@ -4,6 +4,7 @@ namespace App\Enums;
 
 enum StudentStatus: string
 {
+    case PendingVerification = 'pending_verification';
     case Active = 'active';
     case Suspended = 'suspended';
     case Graduated = 'graduated';
@@ -11,12 +12,16 @@ enum StudentStatus: string
 
     public function label(): string
     {
-        return ucfirst($this->value);
+        return match ($this) {
+            self::PendingVerification => 'Pending verification',
+            default => ucfirst($this->value),
+        };
     }
 
     public function badgeClass(): string
     {
         return match ($this) {
+            self::PendingVerification => 'text-bg-secondary',
             self::Active => 'text-bg-success',
             self::Suspended => 'text-bg-warning',
             self::Graduated => 'text-bg-info',

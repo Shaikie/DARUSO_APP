@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class ProfileTest extends TestCase
@@ -41,6 +43,21 @@ class ProfileTest extends TestCase
         $this->assertSame('Test User', $user->name);
         $this->assertSame('test@example.com', $user->email);
         $this->assertNull($user->email_verified_at);
+    }
+
+    public function test_changing_email_sends_a_new_verification_notification(): void
+    {
+        $user = User::factory()->create();
+
+        Notification::fake();
+
+        $this->actingAs($user)->patch('/profile', [
+            'name' => $user->name,
+            'email' => 'new-address@example.com',
+        ])->assertRedirect('/profile');
+
+        Notification::assertSentTo($user, VerifyEmail::class);
+        $this->assertNull($user->fresh()->email_verified_at);
     }
 
     public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged(): void
