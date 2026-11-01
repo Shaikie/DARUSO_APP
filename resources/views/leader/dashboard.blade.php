@@ -15,7 +15,8 @@
     <div class="row g-3 mb-4">
         <div class="col-6 col-xl-3"><x-stat-card icon="inbox" label="Open complaints" :value="$stats['open_complaints']" :href="route('leader.complaints.index')" tone="warning" /></div>
         <div class="col-6 col-xl-3"><x-stat-card icon="person-exclamation" label="Unassigned" :value="$stats['unassigned_complaints']" :href="route('leader.complaints.index')" tone="danger" /></div>
-        <div class="col-6 col-xl-3"><x-stat-card icon="people" label="Students" :value="$stats['total_students']" :href="route('leader.students.index')" tone="primary" /></div>
+        <div class="col-6 col-xl-3"><x-stat-card icon="people" label="Active students" :value="$stats['total_students']" :href="route('leader.students.index')" tone="primary" /></div>
+        <div class="col-6 col-xl-3"><x-stat-card icon="person-check" label="Pending verification" :value="$stats['pending_students']" :href="route('leader.students.index', ['status' => 'pending_verification'])" tone="warning" /></div>
         <div class="col-6 col-xl-3"><x-stat-card icon="person-badge" label="Active leaders" :value="$stats['active_leaders']" :href="route('leader.leadership.index')" tone="info" /></div>
     </div>
 
