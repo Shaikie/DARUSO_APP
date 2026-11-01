@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\Searchable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Post extends Model
 {
     use HasFactory;
+    use Searchable;
 
     protected $fillable = [
         'author_id',
@@ -42,6 +44,14 @@ class Post extends Model
     public function comments(): HasMany
     {
         return $this->hasMany(PostComment::class);
+    }
+
+    /**
+     * @return HasMany<PostReport, $this>
+     */
+    public function reports(): HasMany
+    {
+        return $this->hasMany(PostReport::class);
     }
 
     public function scopePublished(Builder $query): Builder

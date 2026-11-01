@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\AccountStatus;
 use App\Enums\RoleName;
+use App\Enums\StudentStatus;
+use App\Enums\VerificationStatus;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -26,6 +29,10 @@ class User extends Authenticatable
         'email',
         'phone',
         'password',
+        'account_status',
+        'status_reason',
+        'status_changed_at',
+        'last_login_at',
     ];
 
     /**
@@ -143,6 +150,94 @@ class User extends Authenticatable
         return $this->hasMany(AuditLog::class, 'actor_id');
     }
 
+    /**
+     * @return HasMany<Feedback, $this>
+     */
+    public function feedback(): HasMany
+    {
+        return $this->hasMany(Feedback::class);
+    }
+
+    /**
+     * @return HasMany<Poll, $this>
+     */
+    public function pollsCreated(): HasMany
+    {
+        return $this->hasMany(Poll::class, 'created_by');
+    }
+
+    /**
+     * @return HasMany<PollVote, $this>
+     */
+    public function pollVotes(): HasMany
+    {
+        return $this->hasMany(PollVote::class);
+    }
+
+    /**
+     * @return HasMany<LeaderTask, $this>
+     */
+    public function assignedTasks(): HasMany
+    {
+        return $this->hasMany(LeaderTask::class, 'assigned_to');
+    }
+
+    /**
+     * @return HasMany<LeaderTask, $this>
+     */
+    public function createdTasks(): HasMany
+    {
+        return $this->hasMany(LeaderTask::class, 'assigned_by');
+    }
+
+    /**
+     * @return HasMany<Handover, $this>
+     */
+    public function handoversFrom(): HasMany
+    {
+        return $this->hasMany(Handover::class, 'from_user_id');
+    }
+
+    /**
+     * @return HasMany<Handover, $this>
+     */
+    public function handoversTo(): HasMany
+    {
+        return $this->hasMany(Handover::class, 'to_user_id');
+    }
+
+    /**
+     * @return HasMany<LeadershipInvitation, $this>
+     */
+    public function sentInvitations(): HasMany
+    {
+        return $this->hasMany(LeadershipInvitation::class, 'invited_by');
+    }
+
+    /**
+     * @return HasMany<MinistryActivityReport, $this>
+     */
+    public function activityReports(): HasMany
+    {
+        return $this->hasMany(MinistryActivityReport::class, 'submitted_by');
+    }
+
+    /**
+     * @return HasMany<NotificationPreference, $this>
+     */
+    public function notificationPreferences(): HasMany
+    {
+        return $this->hasMany(NotificationPreference::class);
+    }
+
+    /**
+     * @return HasMany<PostReport, $this>
+     */
+    public function postReports(): HasMany
+    {
+        return $this->hasMany(PostReport::class, 'reporter_id');
+    }
+
     /* ---------------------------------------------------------------------
      | Authorization helpers
      |---------------------------------------------------------------------*/
@@ -231,6 +326,107 @@ class User extends Authenticatable
         return $this->leaderProfile()->exists();
     }
 
+    public function isAdministrator(): bool
+    {
+        return $this->hasRole(RoleName::Administrator);
+    }
+
+    public function canLogin(): bool
+    {
+        return $this->account_status->canLogin();
+    }
+
+    /**
+     * Whether the account has completed administrative approval.
+     */
+    public function isActiveAccount(): bool
+    {
+        return $this->account_status->isApproved();
+    }
+
+    /**
+     * A verified, active student record.
+     */
+    public function isVerifiedStudent(): bool
+    {
+        $profile = $this->relationLoaded('studentProfile')
+            ? $this->studentProfile
+            : $this->studentProfile()->first();
+
+        return $profile !== null
+            && $profile->verification_status === VerificationStatus::Verified
+            && $profile->status === StudentStatus::Active;
+    }
+
+    /**
+     * Whether participation features (complaints, polls, feedback) are available.
+     */
+    public function canParticipate(): bool
+    {
+        return $this->isVerifiedStudent();
+    }
+
+    /**
+     * Whether leadership authority is still backed by an active term.
+     *
+     * Administrators and standing roles are never term-bound. A ministry or
+     * committee leader whose recorded assignments and memberships all belong to
+     * ended terms loses authority; a leader who has never been scoped to a term
+     * keeps it (provisioning) so a role can be granted before an assignment is
+     * recorded.
+     */
+    public function hasActiveLeadershipAuthority(): bool
+    {
+        if ($this->hasAnyRole([
+            RoleName::Administrator,
+            RoleName::SecretaryGeneral,
+            RoleName::UniversityLeadership,
+        ])) {
+            return true;
+        }
+
+        $termBound = $this->hasAnyRole([RoleName::MinistryLeader, RoleName::CommitteeLeader])
+            || $this->leaderProfile()->exists();
+
+        if (! $termBound) {
+            return true;
+        }
+
+        $hasAssignments = LeaderAssignment::query()->where('user_id', $this->getKey())->exists();
+        $hasMemberships = CommitteeMember::query()->where('user_id', $this->getKey())->exists();
+
+        if (! $hasAssignments && ! $hasMemberships) {
+            return true;
+        }
+
+        return LeaderAssignment::query()
+            ->where('user_id', $this->getKey())
+            ->whereHas('term', fn (Builder $query) => $query->where('is_active', true))
+            ->exists()
+            || CommitteeMember::query()
+                ->where('user_id', $this->getKey())
+                ->whereHas('term', fn (Builder $query) => $query->where('is_active', true))
+                ->exists();
+    }
+
+    /**
+     * Roles that make a user a leader, for display only.
+     *
+     * @return Collection<int, string>
+     */
+    public function leadershipRoleLabels(): Collection
+    {
+        return $this->roles()
+            ->whereIn('name', RoleName::leadershipValues())
+            ->pluck('name')
+            ->map(fn (string $name): string => RoleName::tryFrom($name)?->label() ?? $name);
+    }
+
+    public function initials(): string
+    {
+        return \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($this->name, 0, 1));
+    }
+
     /**
      * Ministries the user currently leads, resolved through the active term.
      *
@@ -289,6 +485,9 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'account_status' => AccountStatus::class,
+            'status_changed_at' => 'datetime',
+            'last_login_at' => 'datetime',
         ];
     }
 }

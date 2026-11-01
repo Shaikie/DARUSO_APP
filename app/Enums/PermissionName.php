@@ -32,6 +32,8 @@ enum PermissionName: string
     case StudentView = 'student.view';
     case StudentViewSensitive = 'student.view_sensitive';
     case StudentViewHostel = 'student.view_hostel';
+    case StudentVerify = 'student.verify';
+    case StudentDirectory = 'student.directory';
 
     // Complaints
     case ComplaintView = 'complaint.view';
@@ -53,6 +55,22 @@ enum PermissionName: string
     case DocumentCreate = 'document.create';
     case DocumentPublish = 'document.publish';
     case DocumentDelete = 'document.delete';
+
+    // Feedback and polls
+    case FeedbackView = 'feedback.view';
+    case FeedbackRespond = 'feedback.respond';
+    case PollManage = 'poll.manage';
+
+    // Leadership operations
+    case LeaderInvite = 'leader.invite';
+    case TaskView = 'task.view';
+    case TaskAssign = 'task.assign';
+    case TaskManage = 'task.manage';
+    case HandoverManage = 'handover.manage';
+    case ActivityReportSubmit = 'activity_report.submit';
+    case ActivityReportReview = 'activity_report.review';
+    case CalendarManage = 'calendar.manage';
+    case PostReportManage = 'post.report_manage';
 
     // Administration
     case LeaderManage = 'leader.manage';

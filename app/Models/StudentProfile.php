@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use App\Enums\StudentStatus;
+use App\Enums\VerificationStatus;
 use App\Models\Concerns\Searchable;
 use Database\Factories\StudentProfileFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Academic record attached to a user.
@@ -35,6 +37,11 @@ class StudentProfile extends Model
         'hostel',
         'gender',
         'status',
+        'verification_status',
+        'submitted_at',
+        'verified_at',
+        'verified_by',
+        'rejection_reason',
     ];
 
     /**
@@ -43,6 +50,22 @@ class StudentProfile extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function verifier(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'verified_by');
+    }
+
+    /**
+     * @return HasMany<StudentVerificationHistory, $this>
+     */
+    public function verificationHistory(): HasMany
+    {
+        return $this->hasMany(StudentVerificationHistory::class);
     }
 
     /**
@@ -91,6 +114,34 @@ class StudentProfile extends Model
     }
 
     /**
+     * @param  Builder<$this>  $query
+     * @return Builder<$this>
+     */
+    public function scopeVerified(Builder $query): Builder
+    {
+        return $query->where('verification_status', VerificationStatus::Verified->value);
+    }
+
+    /**
+     * @param  Builder<$this>  $query
+     * @return Builder<$this>
+     */
+    public function scopePendingVerification(Builder $query): Builder
+    {
+        return $query->where('verification_status', VerificationStatus::Pending->value);
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->verification_status === VerificationStatus::Verified;
+    }
+
+    public function isPendingVerification(): bool
+    {
+        return $this->verification_status === VerificationStatus::Pending;
+    }
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array
@@ -98,6 +149,9 @@ class StudentProfile extends Model
         return [
             'year_of_study' => 'integer',
             'status' => StudentStatus::class,
+            'verification_status' => VerificationStatus::class,
+            'submitted_at' => 'datetime',
+            'verified_at' => 'datetime',
         ];
     }
 }
