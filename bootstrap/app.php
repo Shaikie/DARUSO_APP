@@ -21,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role.except' => DenyStudentRole::class,
             'permission' => EnsurePermission::class,
             'student.active' => EnsureActiveStudent::class,
+            'leader' => EnsureLeader::class,
         ]);
 
         // Authenticated pages are session-backed and must never be cached by a
