@@ -1,58 +1,120 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# DARUSO Student Platform
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel-based platform for student communication, student services, leadership operations and organisational coordination at the University of Dar es Salaam.
 
-## About Laravel
+## Platform capabilities
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Accounts and onboarding:** user registration, email verification, password reset and student academic-profile submission.
+- **Student verification:** newly submitted academic records remain pending until an authorised leader reviews and activates them. Student-only services are restricted to active student records.
+- **Role-based leadership:** database-driven roles, permissions, leadership terms, positions, assignments, ministries and committees.
+- **Communication:** announcements, community posts, comments, reactions and in-app notifications.
+- **Student services:** complaint submission and follow-up, meetings, events, shared documents and representative listings.
+- **Administration:** student records, organisational configuration, reports, audit logs and settings.
+- **Audience targeting:** announcements, events and meetings can be scoped to eligible audiences using the audience rules.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Technology
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP and Laravel
+- PostgreSQL as the intended production database
+- Blade templates, Bootstrap, Bootstrap Icons and Alpine.js
+- Vite for frontend asset compilation
+- PHPUnit for feature and application tests
+- Laravel Pint for PHP style checks
 
-## Learning Laravel
+Check `composer.json` and `package.json` for the exact dependency versions used by the current branch.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Requirements
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- PHP version compatible with the constraints in `composer.json`
+- Composer 2
+- Node.js and npm compatible with the lockfile
+- PostgreSQL for production
+- A mail transport for verification and password-reset messages
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## Local setup
 
-## Agentic Development
+1. Clone the repository and install dependencies:
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+   ```bash
+   composer install
+   npm ci
+   ```
 
-```bash
-composer require laravel/boost --dev
+2. Create the environment file and application key:
 
-php artisan boost:install
-```
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+3. Configure the database and mail transport in `.env`. For PostgreSQL, set `DB_CONNECTION=pgsql` and provide the database host, port, name, username and password.
+
+4. Run migrations and seed the baseline roles, permissions and reference data:
+
+   ```bash
+   php artisan migrate
+   php artisan db:seed
+   ```
+
+   Do not run destructive reset commands against a database containing real student or organisational records.
+
+5. Build frontend assets and start the development server:
+
+   ```bash
+   npm run build
+   php artisan serve
+   ```
+
+   During frontend development, use `npm run dev` in a separate terminal.
+
+## Account and student onboarding flow
+
+1. A person registers with their name, email and password.
+2. The platform sends an email-verification message. Authenticated application routes require a verified email address.
+3. A student submits their academic information through onboarding.
+4. The student profile is saved as `pending_verification`; the account does not receive access to active student services yet.
+5. An authorised leader reviews the submitted record and changes its status to `active`.
+6. The student receives an in-app notification and can access student services.
+
+Leaders creating a student account must use the password-reset flow so the student establishes their own password. Never distribute shared or default passwords.
+
+## Leadership and permissions
+
+Leadership assignments connect an existing user to a position and leadership term, with an optional ministry. A leader profile is created when a user receives an assignment. Permissions are granted through roles and checked through Laravel policies and gates. Do not rely on hidden navigation links as an authorization boundary: controller actions must continue to authorize sensitive operations.
+
+## CI checks
+
+The GitHub Actions workflow in `.github/workflows/ci.yml` installs PHP and Node dependencies, builds frontend assets, runs Laravel Pint in test mode and executes the automated test suite. A successful local change is not considered verified until the relevant CI run completes successfully.
+
+## Production deployment checklist
+
+- Use HTTPS and configure the trusted application URL.
+- Set `APP_ENV=production` and `APP_DEBUG=false`.
+- Store secrets in the deployment environment, never in source control.
+- Configure PostgreSQL backups and test restoration procedures.
+- Configure a working mail provider and verify delivery of account-verification and password-reset messages.
+- Build production assets with `npm ci && npm run build`.
+- Deploy code, then run `php artisan migrate --force`.
+- Run `php artisan optimize` after deployment; clear the relevant caches when deploying changed configuration or routes.
+- Ensure `storage` and `bootstrap/cache` are writable by the PHP process.
+- Configure a process manager for queue workers if queued notifications or jobs are enabled.
+- Monitor application logs, failed jobs, database health and GitHub Actions results.
+- Preserve database backups before migrations. Review each migration before applying it to production.
+
+## Security notes
+
+- Keep email verification enabled.
+- Keep student verification separate from email verification: a verified email does not prove student status.
+- Assign the minimum roles and permissions needed for each leadership responsibility.
+- Protect student registration numbers and other sensitive academic details through policies.
+- Use password-reset links rather than shared credentials when provisioning accounts.
+- Review audit logs for sensitive administrative changes.
+- Never commit `.env`, credentials, private keys, production data or database dumps.
 
 ## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Create a focused branch, make the smallest coherent change, add or update feature tests, run Pint and the test suite, and open a pull request against `main`. Include migration and deployment implications in the pull-request description.
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+See the repository license file for the applicable terms.
