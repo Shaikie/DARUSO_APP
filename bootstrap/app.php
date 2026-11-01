@@ -3,6 +3,7 @@
 use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\DenyStudentRole;
 use App\Http\Middleware\EnsurePermission;
+use App\Http\Middleware\EnsureActiveStudent;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -19,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => CheckRole::class,
             'role.except' => DenyStudentRole::class,
             'permission' => EnsurePermission::class,
+            'student.active' => EnsureActiveStudent::class,
         ]);
 
         // Authenticated pages are session-backed and must never be cached by a

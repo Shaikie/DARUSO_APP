@@ -74,6 +74,7 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     */
 
     Route::prefix('student')->name('student.')->group(function (): void {
+        Route::middleware('student.active')->group(function (): void {
         Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
 
         Route::resource('announcements', StudentAnnouncementController::class)->only(['index', 'show']);
@@ -103,6 +104,8 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
 
         Route::get('/representatives', [StudentRepresentativeController::class, 'index'])
             ->name('representatives.index');
+
+        });
 
         // Onboarding for a freshly registered account with no profile yet.
         Route::post('/profile', [StudentProfileController::class, 'store'])
