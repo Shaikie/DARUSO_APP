@@ -1,12 +1,13 @@
 <x-app-layout>
     @php
-        $isPending = $status === \App\\Enums\\StudentStatus::PendingVerification;
+        $statusValue = $status?->value;
+        $isPending = $statusValue === 'pending_verification';
         $title = $isPending ? 'Your student record is under review' : 'Student services are unavailable';
-        $description = match ($status) {
-            \App\\Enums\\StudentStatus::PendingVerification => 'Student services will become available after your academic details have been verified.',
-            \App\\Enums\\StudentStatus::Suspended => 'Your student access has been suspended. Contact the DARUSO office for clarification.',
-            \App\\Enums\\StudentStatus::Graduated => 'This student record is marked as graduated, so current-student services are no longer available.',
-            \App\\Enums\\StudentStatus::Expelled => 'This student record is not eligible for current-student services. Contact the authorised university office if you believe this is incorrect.',
+        $description = match ($statusValue) {
+            'pending_verification' => 'Student services will become available after your academic details have been verified.',
+            'suspended' => 'Your student access has been suspended. Contact the DARUSO office for clarification.',
+            'graduated' => 'This student record is marked as graduated, so current-student services are no longer available.',
+            'expelled' => 'This student record is not eligible for current-student services. Contact the authorised university office if you believe this is incorrect.',
             default => 'Your student record needs attention before student services can be accessed.',
         };
     @endphp
