@@ -25,7 +25,7 @@ Check `composer.json` and `package.json` for the exact dependency versions used 
 
 ## Requirements
 
-- PHP version compatible with the constraints in `composer.json`
+- PHP 8.4.1 or newer (the committed dependency lock includes Symfony 8.1 packages)
 - Composer 2
 - Node.js and npm compatible with the lockfile
 - PostgreSQL for production
