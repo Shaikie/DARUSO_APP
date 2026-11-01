@@ -27,6 +27,30 @@ class StudentVerificationTest extends TestCase
             ->assertSee('Your student record is under review');
     }
 
+    public function test_account_without_a_student_profile_cannot_access_student_services(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->get(route('student.dashboard'))
+            ->assertForbidden();
+    }
+
+    public function test_suspended_student_sees_the_correct_account_status_message(): void
+    {
+        $user = User::factory()->create();
+
+        StudentProfile::factory()->suspended()->create([
+            'user_id' => $user->getKey(),
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('student.dashboard'))
+            ->assertOk()
+            ->assertSee('Your student access has been suspended')
+            ->assertDontSee('Verification pending');
+    }
+
     public function test_student_profile_status_is_pending_after_onboarding(): void
     {
         $user = User::factory()->create();
