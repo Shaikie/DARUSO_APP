@@ -8,6 +8,7 @@ use App\Http\Requests\StoreStudentProfileRequest;
 use App\Models\StudentProfile;
 use App\Models\User;
 use App\Services\AuditLogger;
+use App\Services\NotificationDispatcher;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -28,6 +29,7 @@ class StudentController extends Controller
 {
     public function __construct(
         private readonly AuditLogger $audit,
+        private readonly NotificationDispatcher $notifications,
     ) {}
 
     public function index(Request $request): View
@@ -141,16 +143,33 @@ class StudentController extends Controller
         $this->authorize('update', $student);
 
         $old = $student->only(['registration_number', 'programme', 'year_of_study', 'status']);
+        $previousStatus = $student->status;
 
-        $student->update($request->academicPayload());
+        DB::transaction(function () use ($request, $student): void {
+            $student->update($request->academicPayload());
 
-        // Status is a sensitive field: only privileged editors may change it.
-        if ($request->filled('status') && $request->user()->can('viewSensitive', $student)) {
-            $student->update(['status' => $request->string('status')->value]);
-        }
+            // Status is a sensitive field: only privileged editors may change it.
+            if ($request->filled('status') && $request->user()->can('viewSensitive', $student)) {
+                $student->update(['status' => $request->string('status')->value]);
+            }
 
-        if ($request->user()->can('update', $student->user)) {
-            $student->user->update($request->accountPayload());
+            if ($request->user()->can('update', $student->user)) {
+                $student->user->update($request->accountPayload());
+            }
+        });
+
+        $student->refresh();
+
+        if ($previousStatus === StudentStatus::PendingVerification
+            && $student->status === StudentStatus::Active) {
+            $this->notifications->sendToUser(
+                $student->user,
+                $request->user(),
+                'Student account verified',
+                'Your student record has been reviewed and approved. Student services are now available.',
+                related: $student,
+                actionUrl: route('student.dashboard'),
+            );
         }
 
         $this->audit->log('updated', $student, $old, $student->only(['registration_number', 'programme', 'year_of_study', 'status']), $request);
