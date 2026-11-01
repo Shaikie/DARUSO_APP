@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Leader;
 
+use App\Enums\StudentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;
 use App\Models\AuditLog;
@@ -56,7 +57,8 @@ class DashboardController extends Controller
                     ->whereNull('assigned_ministry_id')
                     ->whereNull('assigned_leader_id')
                     ->count(),
-                'total_students' => StudentProfile::query()->count(),
+                'total_students' => StudentProfile::query()->where('status', StudentStatus::Active->value)->count(),
+                'pending_students' => StudentProfile::query()->where('status', StudentStatus::PendingVerification->value)->count(),
                 'active_leaders' => LeaderAssignment::query()
                     ->whereHas('term', fn ($query) => $query->where('is_active', true))
                     ->distinct('user_id')
