@@ -2,8 +2,9 @@
 
 use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\DenyStudentRole;
-use App\Http\Middleware\EnsurePermission;
 use App\Http\Middleware\EnsureActiveStudent;
+use App\Http\Middleware\EnsureLeader;
+use App\Http\Middleware\EnsurePermission;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
