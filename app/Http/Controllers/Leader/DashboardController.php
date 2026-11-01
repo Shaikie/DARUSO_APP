@@ -92,7 +92,7 @@ class DashboardController extends Controller
                 ->latest()
                 ->limit(10)
                 ->get(),
-            'recentPosts' => Post::query()->with('author')->withCount(['likes','comments'])->latest('published_at')->limit(5)->get(),
+            'recentPosts' => Post::query()->with('author')->withCount(['likes', 'comments'])->latest('published_at')->limit(5)->get(),
             'sentNotifications' => Notification::query()
                 ->with('recipient')
                 ->where('sender_id', $user->getKey())
