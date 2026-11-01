@@ -122,7 +122,7 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     |
     */
 
-    Route::prefix('leader')->name('leader.')->middleware('role.except:student')->group(function (): void {
+    Route::prefix('leader')->name('leader.')->middleware(['leader', 'role.except:student'])->group(function (): void {
         Route::get('/dashboard', [LeaderDashboardController::class, 'index'])->name('dashboard');
 
         // Communication
