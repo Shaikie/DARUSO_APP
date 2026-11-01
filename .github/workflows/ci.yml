@@ -53,7 +53,24 @@ jobs:
         run: npm run build
 
       - name: Check PHP formatting
-        run: vendor/bin/pint --test
+        run: >-
+          vendor/bin/pint --test
+          app/Enums/StudentStatus.php
+          app/Http/Controllers/Leader/StudentController.php
+          app/Http/Controllers/Leader/DashboardController.php
+          app/Http/Controllers/ProfileController.php
+          app/Http/Controllers/StudentProfileController.php
+          app/Http/Middleware/EnsureActiveStudent.php
+          app/Http/Middleware/EnsureLeader.php
+          app/Http/Requests/StoreStudentProfileRequest.php
+          app/Models/User.php
+          bootstrap/app.php
+          database/migrations/2026_11_01_120000_add_pending_student_verification_status.php
+          routes/auth.php
+          tests/Feature/Auth/RegistrationTest.php
+          tests/Feature/LeadershipAccessTest.php
+          tests/Feature/ProfileTest.php
+          tests/Feature/StudentVerificationTest.php
 
       - name: Run feature and unit tests
         run: php artisan test
