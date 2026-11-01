@@ -4,17 +4,17 @@ namespace App\Http\Controllers\Leader;
 
 use App\Enums\StudentStatus;
 use App\Http\Controllers\Controller;
-use Illuminate\Auth\Events\Registered;
 use App\Http\Requests\StoreStudentProfileRequest;
 use App\Models\StudentProfile;
 use App\Models\User;
 use App\Services\AuditLogger;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 /**

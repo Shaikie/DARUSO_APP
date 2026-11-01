@@ -75,35 +75,35 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
 
     Route::prefix('student')->name('student.')->group(function (): void {
         Route::middleware('student.active')->group(function (): void {
-        Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
+            Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
 
-        Route::resource('announcements', StudentAnnouncementController::class)->only(['index', 'show']);
-        Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
-        Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
-        Route::post('/posts/{post}/like', [PostController::class, 'like'])->name('posts.like');
-        Route::post('/posts/{post}/react', [PostController::class, 'react'])->name('posts.react');
-        Route::post('/posts/{post}/comments', [PostController::class, 'comment'])->name('posts.comments.store');
-        Route::delete('/posts/{post}/comments/{comment}', [PostController::class, 'deleteComment'])->name('posts.comments.destroy');
-        Route::post('/posts/{post}/share', [PostController::class, 'share'])->name('posts.share');
-        Route::resource('notifications', StudentNotificationController::class)->only(['index', 'show', 'destroy']);
-        Route::patch('notifications/read-all', [StudentNotificationController::class, 'markAllAsRead'])
-            ->name('notifications.read-all');
-        Route::patch('notifications/{notification}/read', [StudentNotificationController::class, 'markAsRead'])
-            ->name('notifications.markAsRead');
-        Route::resource('events', StudentEventController::class)->only(['index', 'show']);
-        Route::resource('meetings', StudentMeetingController::class)->only(['index', 'show']);
-        Route::resource('complaints', StudentComplaintController::class);
-        Route::resource('documents', StudentDocumentController::class)->only(['index', 'show']);
+            Route::resource('announcements', StudentAnnouncementController::class)->only(['index', 'show']);
+            Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
+            Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
+            Route::post('/posts/{post}/like', [PostController::class, 'like'])->name('posts.like');
+            Route::post('/posts/{post}/react', [PostController::class, 'react'])->name('posts.react');
+            Route::post('/posts/{post}/comments', [PostController::class, 'comment'])->name('posts.comments.store');
+            Route::delete('/posts/{post}/comments/{comment}', [PostController::class, 'deleteComment'])->name('posts.comments.destroy');
+            Route::post('/posts/{post}/share', [PostController::class, 'share'])->name('posts.share');
+            Route::resource('notifications', StudentNotificationController::class)->only(['index', 'show', 'destroy']);
+            Route::patch('notifications/read-all', [StudentNotificationController::class, 'markAllAsRead'])
+                ->name('notifications.read-all');
+            Route::patch('notifications/{notification}/read', [StudentNotificationController::class, 'markAsRead'])
+                ->name('notifications.markAsRead');
+            Route::resource('events', StudentEventController::class)->only(['index', 'show']);
+            Route::resource('meetings', StudentMeetingController::class)->only(['index', 'show']);
+            Route::resource('complaints', StudentComplaintController::class);
+            Route::resource('documents', StudentDocumentController::class)->only(['index', 'show']);
 
-        Route::get('/meetings/{meeting}/attachment', [StudentMeetingController::class, 'download'])
-            ->name('meetings.download');
-        Route::get('/events/{event}/attachment', [StudentEventController::class, 'download'])
-            ->name('events.download');
-        Route::get('/documents/{document}/download', [StudentDocumentController::class, 'download'])
-            ->name('documents.download');
+            Route::get('/meetings/{meeting}/attachment', [StudentMeetingController::class, 'download'])
+                ->name('meetings.download');
+            Route::get('/events/{event}/attachment', [StudentEventController::class, 'download'])
+                ->name('events.download');
+            Route::get('/documents/{document}/download', [StudentDocumentController::class, 'download'])
+                ->name('documents.download');
 
-        Route::get('/representatives', [StudentRepresentativeController::class, 'index'])
-            ->name('representatives.index');
+            Route::get('/representatives', [StudentRepresentativeController::class, 'index'])
+                ->name('representatives.index');
 
         });
 
