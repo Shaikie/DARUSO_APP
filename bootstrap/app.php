@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\DenyStudentRole;
+use App\Http\Middleware\EnsureActiveAccount;
 use App\Http\Middleware\EnsureActiveStudent;
 use App\Http\Middleware\EnsureLeader;
 use App\Http\Middleware\EnsurePermission;
@@ -22,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role.except' => DenyStudentRole::class,
             'permission' => EnsurePermission::class,
             'student.active' => EnsureActiveStudent::class,
+            'account.active' => EnsureActiveAccount::class,
             'leader' => EnsureLeader::class,
         ]);
 

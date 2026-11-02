@@ -13,6 +13,19 @@ class AccountLifecycleTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_suspended_account_with_an_existing_session_is_logged_out(): void
+    {
+        $user = User::factory()->create([
+            'account_status' => AccountStatus::Suspended,
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('dashboard'))
+            ->assertRedirect(route('login'));
+
+        $this->assertGuest();
+    }
+
     public function test_suspending_an_account_does_not_assume_database_sessions_are_enabled(): void
     {
         config(['session.driver' => 'file']);

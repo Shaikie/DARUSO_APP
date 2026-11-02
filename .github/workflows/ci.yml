@@ -62,6 +62,7 @@ jobs:
           app/Http/Controllers/ProfileController.php
           app/Http/Controllers/StudentProfileController.php
           app/Http/Middleware/EnsureActiveStudent.php
+          app/Http/Middleware/EnsureActiveAccount.php
           app/Http/Middleware/EnsureLeader.php
           app/Http/Requests/StoreStudentProfileRequest.php
           app/Models/User.php
