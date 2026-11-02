@@ -49,19 +49,53 @@
 
             <div class="daruso-nav-label mt-3">Administration</div>
             @php($adminLinks = [
-                ['leader.ministries.index', 'leader.ministries.*', 'building', 'Ministries'],
-                ['leader.committees.index', 'leader.committees.*', 'diagram-3', 'Committees'],
-                ['leader.leadership.index', 'leader.leadership.*', 'person-badge', 'Leadership'],
-                ['leader.reports.index', 'leader.reports.*', 'bar-chart', 'Reports'],
-                ['leader.audit-logs.index', 'leader.audit-logs.*', 'journal-text', 'Audit logs'],
-                ['leader.settings.index', 'leader.settings.*', 'gear', 'Settings'],
-                ['leader.posts.index', 'leader.posts.*', 'pencil-square', 'Post management'],
+                ['leader.ministries.index', 'leader.ministries.*', 'building', 'Ministries', null],
+                ['leader.committees.index', 'leader.committees.*', 'diagram-3', 'Committees', null],
+                ['leader.leadership.index', 'leader.leadership.*', 'person-badge', 'Leadership', null],
+                ['leader.reports.index', 'leader.reports.*', 'bar-chart', 'Reports', null],
+                ['leader.audit-logs.index', 'leader.audit-logs.*', 'journal-text', 'Audit logs', null],
+                ['leader.settings.index', 'leader.settings.*', 'gear', 'Settings', null],
+                ['leader.posts.index', 'leader.posts.*', 'pencil-square', 'Post management', null],
+                ['leader.feedback.index', 'leader.feedback.*', 'chat-left-text', 'Student feedback', 'feedback.view'],
+                ['leader.polls.index', 'leader.polls.*', 'clipboard-data', 'Polls', 'poll.manage'],
+                ['leader.calendar.index', 'leader.calendar.*', 'calendar3', 'Calendar', 'calendar.manage'],
+                ['leader.tasks.index', 'leader.tasks.*', 'list-check', 'Leadership tasks', 'task.view'],
+                ['leader.handovers.index', 'leader.handovers.*', 'arrow-left-right', 'Handovers', 'handover.manage'],
+                ['leader.activity-reports.index', 'leader.activity-reports.*', 'file-earmark-bar-graph', 'Activity reports', 'activity_report.submit'],
+                ['leader.invitations.index', 'leader.invitations.*', 'person-plus', 'Invitations', 'leader.invite'],
+                ['leader.payments.index', 'leader.payments.*', 'cash-coin', 'Payment requests', 'payment.manage'],
+                ['leader.directory.index', 'leader.directory.*', 'people', 'Student directory', 'student.directory'],
             ])
-            @foreach ($adminLinks as [$href, $pattern, $icon, $label])
-                <a href="{{ route($href) }}" class="daruso-nav-link {{ request()->routeIs($pattern) ? 'active' : '' }}">
-                    <i class="bi bi-{{ $icon }}"></i><span>{{ $label }}</span>
-                </a>
+            @foreach ($adminLinks as [$href, $pattern, $icon, $label, $permission])
+                @if (! $permission || $user->hasPermission($permission))
+                    <a href="{{ route($href) }}" class="daruso-nav-link {{ request()->routeIs($pattern) ? 'active' : '' }}">
+                        <i class="bi bi-{{ $icon }}"></i><span>{{ $label }}</span>
+                    </a>
+                @endif
             @endforeach
+
+            @if ($user->isStudent())
+                <div class="daruso-nav-label mt-3">Student workspace</div>
+                @php($dualStudentLinks = [
+                    ['student.dashboard', 'student.dashboard', 'house', 'Student home'],
+                    ['student.announcements.index', 'student.announcements.*', 'megaphone', 'Student announcements'],
+                    ['student.notifications.index', 'student.notifications.*', 'bell', 'Student notifications'],
+                    ['student.events.index', 'student.events.*', 'calendar-check', 'Student events'],
+                    ['student.meetings.index', 'student.meetings.*', 'calendar-event', 'Student meetings'],
+                    ['student.complaints.index', 'student.complaints.*', 'life-preserver', 'My complaints'],
+                    ['student.documents.index', 'student.documents.*', 'folder2-open', 'Student documents'],
+                    ['student.representatives.index', 'student.representatives.*', 'people', 'Representatives'],
+                    ['student.polls.index', 'student.polls.*', 'clipboard-data', 'Polls'],
+                    ['student.calendar.index', 'student.calendar.*', 'calendar3', 'Student calendar'],
+                    ['student.feedback.index', 'student.feedback.*', 'chat-left-text', 'Suggestions & feedback'],
+                    ['student.payments.index', 'student.payments.*', 'wallet2', 'Payments & contributions'],
+                ])
+                @foreach ($dualStudentLinks as [$href, $pattern, $icon, $label])
+                    <a href="{{ route($href) }}" class="daruso-nav-link {{ request()->routeIs($pattern) ? 'active' : '' }}">
+                        <i class="bi bi-{{ $icon }}"></i><span>{{ $label }}</span>
+                    </a>
+                @endforeach
+            @endif
         @else
             @php($studentLinks = [
                 ['student.dashboard', 'student.dashboard', 'house', 'Home'],
@@ -73,6 +107,10 @@
                 ['student.complaints.index', 'student.complaints.*', 'life-preserver', 'Complaints'],
                 ['student.documents.index', 'student.documents.*', 'folder2-open', 'Documents'],
                 ['student.representatives.index', 'student.representatives.*', 'people', 'Representatives'],
+                ['student.polls.index', 'student.polls.*', 'clipboard-data', 'Polls'],
+                ['student.calendar.index', 'student.calendar.*', 'calendar3', 'Calendar'],
+                ['student.feedback.index', 'student.feedback.*', 'chat-left-text', 'Suggestions & feedback'],
+                ['student.payments.index', 'student.payments.*', 'wallet2', 'Payments & contributions'],
             ])
             @foreach ($studentLinks as [$href, $pattern, $icon, $label])
                 <a href="{{ route($href) }}" class="daruso-nav-link {{ request()->routeIs($pattern) ? 'active' : '' }}">
@@ -81,6 +119,7 @@
             @endforeach
 
             <div class="daruso-nav-label mt-3">Account</div>
+            <a href="{{ route('notification-preferences.edit') }}" class="daruso-nav-link {{ request()->routeIs('notification-preferences.*') ? 'active' : '' }}"><i class="bi bi-sliders"></i><span>Notification preferences</span></a>
             <a href="{{ route('profile.edit') }}" class="daruso-nav-link {{ request()->routeIs('profile.edit') ? 'active' : '' }}">
                 <i class="bi bi-person-circle"></i><span>Profile</span>
             </a>

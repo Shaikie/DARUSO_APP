@@ -1,0 +1,6 @@
+@php($heading = 'Leadership handovers')
+@php($description = 'Institutional knowledge shared between outgoing and incoming officers.')
+@php($detailRoute = 'leader.handovers.show')
+@php($createRoute = 'leader.handovers.create')
+@php($createLabel = 'Start handover')
+@include('platform.partials.list')

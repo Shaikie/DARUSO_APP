@@ -1,0 +1,5 @@
+@php($heading = 'Leadership invitations')
+@php($description = 'Track role invitations, expiry dates and acceptance status.')
+@php($createRoute = 'leader.invitations.create')
+@php($createLabel = 'Invite leader')
+@include('platform.partials.list')

@@ -1,0 +1,6 @@
+@php($heading = 'My feedback')
+@php($description = 'Suggestions and feedback you have submitted to DARUSO.')
+@php($detailRoute = 'student.feedback.show')
+@php($createRoute = 'student.feedback.create')
+@php($createLabel = 'Send feedback')
+@include('platform.partials.list')

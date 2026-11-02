@@ -38,25 +38,26 @@ class StudentController extends Controller
     {
         $this->authorize('viewAny', StudentProfile::class);
 
+        $canSearchSensitive = $request->user()->can('viewSensitive', new StudentProfile);
+
         $students = StudentProfile::query()
             ->with('user')
-            ->search(
-                $request->input('search'),
-                // Registration numbers and email addresses are sensitive, so they
-                // are only searchable when the actor may view sensitive data.
-                $request->user()->can('viewSensitive', new StudentProfile)
-                    ? ['registration_number', 'programme']
-                    : ['programme'],
-            )
-            ->when($request->filled('search'), function (Builder $query) use ($request): void {
+            ->when($request->filled('search'), function (Builder $query) use ($request, $canSearchSensitive): void {
                 $term = mb_strtolower(trim((string) $request->input('search')));
+                $query->where(function (Builder $searchQuery) use ($term, $canSearchSensitive): void {
+                    $searchQuery->whereRaw('LOWER(programme) LIKE ?', ["%{$term}%"]);
 
-                $query->orWhereHas('user', function (Builder $userQuery) use ($term): void {
-                    $userQuery->whereRaw('LOWER(users.name) LIKE ?', ["%{$term}%"]);
-
-                    if ($request->user()->can('viewSensitive', new StudentProfile)) {
-                        $userQuery->orWhereRaw('LOWER(users.email) LIKE ?', ["%{$term}%"]);
+                    if ($canSearchSensitive) {
+                        $searchQuery->orWhereRaw('LOWER(registration_number) LIKE ?', ["%{$term}%"]);
                     }
+
+                    $searchQuery->orWhereHas('user', function (Builder $userQuery) use ($term, $canSearchSensitive): void {
+                        $userQuery->whereRaw('LOWER(users.name) LIKE ?', ["%{$term}%"]);
+
+                        if ($canSearchSensitive) {
+                            $userQuery->orWhereRaw('LOWER(users.email) LIKE ?', ["%{$term}%"]);
+                        }
+                    });
                 });
             })
             ->when($request->filled('college'), fn ($query) => $query->where('college', $request->string('college')))

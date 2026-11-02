@@ -26,7 +26,7 @@ class CalendarService
     ) {}
 
     /**
-     * @return Collection<int, array{date: string, title: string, subtitle: string, type: string, badge: string, url: ?string}>
+     * @return Collection<int, array{date: string, title: string, subtitle: string, type: string, badge: string, url: ?string, id?: int}>
      */
     public function forUser(User $user, CarbonInterface $from, CarbonInterface $to): Collection
     {
@@ -44,7 +44,7 @@ class CalendarService
             'subtitle' => $event->venue,
             'type' => 'Event',
             'badge' => 'text-bg-primary',
-            'url' => route('student.events.show', $event),
+            'url' => route($user->isLeader() ? 'leader.events.show' : 'student.events.show', $event),
         ]);
 
         $meetings = $this->audience->constrainSubjectForUser(
@@ -58,21 +58,23 @@ class CalendarService
             'subtitle' => trim(($meeting->meeting_time?->format('H:i') ?? '').' · '.$meeting->venue, ' ·'),
             'type' => 'Meeting',
             'badge' => 'text-bg-info',
-            'url' => route('student.meetings.show', $meeting),
+            'url' => route($user->isLeader() ? 'leader.meetings.show' : 'student.meetings.show', $meeting),
         ]);
 
-        $tasks = LeaderTask::query()
-            ->with(['assignee'])
-            ->where(fn ($query) => $query->where('assigned_to', $user->getKey())->orWhere('assigned_by', $user->getKey()))
-            ->whereBetween('due_date', [$fromDate, $toDate])
-            ->get()->map(fn (LeaderTask $task): array => [
-                'date' => $task->due_date->toDateString(),
-                'title' => 'Task due: '.$task->title,
-                'subtitle' => $task->assigned_to === $user->getKey() ? 'Assigned to you' : 'Assigned to '.$task->assignee?->name,
-                'type' => 'Task',
-                'badge' => 'text-bg-warning',
-                'url' => route('leader.tasks.show', $task),
-            ]);
+        $tasks = $user->hasPermission('task.view')
+            ? LeaderTask::query()
+                ->with(['assignee'])
+                ->where(fn ($query) => $query->where('assigned_to', $user->getKey())->orWhere('assigned_by', $user->getKey()))
+                ->whereBetween('due_date', [$fromDate, $toDate])
+                ->get()->map(fn (LeaderTask $task): array => [
+                    'date' => $task->due_date->toDateString(),
+                    'title' => 'Task due: '.$task->title,
+                    'subtitle' => $task->assigned_to === $user->getKey() ? 'Assigned to you' : 'Assigned to '.$task->assignee?->name,
+                    'type' => 'Task',
+                    'badge' => 'text-bg-warning',
+                    'url' => route('leader.tasks.show', $task),
+                ])
+            : collect();
 
         $polls = Poll::query()
             ->whereIn('status', [PollStatus::Open->value, PollStatus::Closed->value])
@@ -83,12 +85,11 @@ class CalendarService
                 'subtitle' => 'Voting closes',
                 'type' => 'Poll',
                 'badge' => 'text-bg-success',
-                'url' => route('student.polls.show', $poll),
+                'url' => $user->isLeader() ? route('leader.polls.show', $poll) : route('student.polls.show', $poll),
             ]);
 
         $entries = CalendarEntry::query()
-            ->where(fn ($query) => $query->whereBetween('start_date', [$fromDate, $toDate])
-                ->orWhereBetween('end_date', [$fromDate, $toDate]))
+            ->between($fromDate, $toDate)
             ->where(function ($query) use ($user): void {
                 $query->where('audience', 'all');
 
@@ -107,6 +108,7 @@ class CalendarService
                 'type' => $entry->type->label(),
                 'badge' => $entry->type->badgeClass(),
                 'url' => null,
+                'id' => $entry->getKey(),
             ]);
 
         return $events
