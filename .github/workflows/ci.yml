@@ -33,7 +33,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: npm
 
       - name: Validate Composer configuration
@@ -68,6 +68,12 @@ jobs:
           bootstrap/app.php
           database/migrations/2026_11_01_120000_add_pending_student_verification_status.php
           routes/auth.php
+          app/Services/StudentVerificationService.php
+          app/Http/Requests/Auth/LoginRequest.php
+          app/Http/Controllers/Auth/RegisteredUserController.php
+          app/Http/Controllers/Auth/VerifyEmailController.php
+          tests/Feature/Auth/AuthenticationTest.php
+          tests/Feature/Auth/EmailVerificationTest.php
           tests/Feature/Auth/RegistrationTest.php
           tests/Feature/LeadershipAccessTest.php
           tests/Feature/MeetingEventTest.php

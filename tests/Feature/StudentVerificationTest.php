@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\RoleName;
 use App\Enums\StudentStatus;
 use App\Enums\VerificationStatus;
 use App\Models\StudentProfile;
@@ -97,7 +98,7 @@ class StudentVerificationTest extends TestCase
             'verification_status' => VerificationStatus::Verified->value,
         ]);
 
-        $this->assertTrue($studentUser->fresh()->hasRole(\App\Enums\RoleName::Student));
+        $this->assertTrue($studentUser->fresh()->hasRole(RoleName::Student));
 
         $this->assertDatabaseHas('notifications', [
             'recipient_id' => $studentUser->getKey(),
