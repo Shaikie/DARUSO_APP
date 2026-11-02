@@ -65,7 +65,7 @@ class PollService
             throw new \DomainException('A poll that already has votes cannot be edited.');
         }
 
-        return DB::transaction(function () use ($poll, $data, $options, $actor, $request): Poll {
+        return DB::transaction(function () use ($poll, $data, $options, $request): Poll {
             $old = $poll->only(['title', 'status']);
 
             $poll->update([
