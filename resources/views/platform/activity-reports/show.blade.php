@@ -1,0 +1,8 @@
+<x-app-layout>
+@section('title','Activity report') @section('heading','Activity report') @section('subheading',$report->ministry?->name.' · '.$report->period_start->format('d M Y').' to '.$report->period_end->format('d M Y'))
+<div class="daruso-panel p-4"><span class="badge text-bg-light">{{ $report->status->label() }}</span>@foreach(['summary'=>'Summary','achievements'=>'Achievements','challenges'=>'Challenges','recommendations'=>'Recommendations'] as $field=>$label)<h2 class="h6 mt-4">{{ $label }}</h2><p>{{ $report->$field ?: 'Not provided.' }}</p>@endforeach
+@if($report->status->value!=='reviewed' && ($report->submitted_by===auth()->id() || auth()->user()->isAdministrator()))<a href="{{ route('leader.activity-reports.edit',$report) }}" class="btn btn-outline-secondary mb-2">Edit report</a>@endif
+@if($report->status->value==='draft' && $report->submitted_by===auth()->id())<form method="POST" action="{{ route('leader.activity-reports.submit',$report) }}">@csrf<button class="btn btn-primary">Submit for review</button></form>@endif
+@if(auth()->user()->hasPermission('activity_report.review') && $report->status->value==='submitted')<hr><form method="POST" action="{{ route('leader.activity-reports.review',$report) }}">@csrf<label class="form-label">Review notes</label><textarea class="form-control mb-3" name="review_notes" required rows="4"></textarea><button class="btn btn-success">Complete review</button></form>@elseif($report->review_notes)<hr><h2 class="h6">Review notes</h2><p>{{ $report->review_notes }}</p>@endif
+<a href="{{ route('leader.activity-reports.index') }}" class="btn btn-light mt-3">Back to reports</a></div>
+</x-app-layout>

@@ -1,0 +1,12 @@
+<x-app-layout>
+@section('title','Invite leader') @section('heading','Invite a leader') @section('subheading','Send a signed, expiring invitation for a leadership role.')
+<div class="daruso-panel p-4"><form method="POST" action="{{ route('leader.invitations.store') }}">@csrf
+<div class="alert alert-info small">Leadership invitations are sent only to existing, active and academically verified DARUSO student accounts. Accepting the invitation adds the leadership role while preserving the student's academic profile.</div>
+<label class="form-label">Student account email</label><input class="form-control mb-3" type="email" name="email" required>
+<label class="form-label">Leadership role</label><select class="form-select mb-3" name="role_name" required>@foreach($roles as $role)<option value="{{ $role->value }}">{{ $role->label() }}</option>@endforeach</select>
+<div class="row g-3"><div class="col-md-6"><label class="form-label">Ministry</label><select class="form-select" name="ministry_id"><option value="">None</option>@foreach($ministries as $m)<option value="{{ $m->id }}">{{ $m->name }}</option>@endforeach</select></div><div class="col-md-6"><label class="form-label">Committee</label><select class="form-select" name="committee_id"><option value="">None</option>@foreach($committees as $c)<option value="{{ $c->id }}">{{ $c->name }}</option>@endforeach</select></div></div>
+<div class="row g-3 mt-1"><div class="col-md-6"><label class="form-label">Position</label><select class="form-select" name="position_id"><option value="">None</option>@foreach($positions as $p)<option value="{{ $p->id }}">{{ $p->name }}</option>@endforeach</select></div><div class="col-md-6"><label class="form-label">Term</label><select class="form-select" name="leadership_term_id"><option value="">Active term</option>@foreach($terms as $t)<option value="{{ $t->id }}">{{ $t->name }}</option>@endforeach</select></div></div>
+<label class="form-label mt-3">Expires after (days)</label><input class="form-control mb-3" type="number" name="expires_in_days" min="1" max="30" value="7" required>
+<label class="form-label">Notes</label><textarea class="form-control mb-3" name="notes" rows="3"></textarea>
+<button class="btn btn-primary">Send invitation</button> <a href="{{ route('leader.invitations.index') }}" class="btn btn-light">Cancel</a>
+</form></div></x-app-layout>

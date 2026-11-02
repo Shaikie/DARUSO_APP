@@ -1,0 +1,7 @@
+<x-app-layout>
+@section('title','Notification preferences') @section('heading','Notification preferences') @section('subheading','Choose which categories you receive in-app and by email. In-app history remains available for essential system records.')
+<div class="daruso-panel p-4"><form method="POST" action="{{ route('notification-preferences.update') }}">@csrf @method('PUT')
+<div class="d-flex justify-content-between border-bottom pb-2 mb-3"><strong>Category</strong><div class="d-flex gap-4"><strong>In-app</strong><strong>Email</strong></div></div>
+@foreach($matrix as $row)<div class="d-flex justify-content-between align-items-center py-3 border-bottom"><span class="fw-semibold">{{ $row['label'] }}</span><div class="d-flex gap-4"><label class="form-check"><input class="form-check-input" type="checkbox" name="preferences[{{ $row['category'] }}][in_app]" value="1" @checked($row['in_app'])><span class="visually-hidden">In-app</span></label><label class="form-check"><input class="form-check-input" type="checkbox" name="preferences[{{ $row['category'] }}][email]" value="1" @checked($row['email'])><span class="visually-hidden">Email</span></label></div></div>@endforeach
+<button class="btn btn-primary mt-4">Save preferences</button>
+</form></div></x-app-layout>

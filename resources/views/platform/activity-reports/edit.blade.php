@@ -1,0 +1,9 @@
+<x-app-layout>
+@section('title','Edit activity report') @section('heading','Edit activity report') @section('subheading','Reviewed reports are locked to preserve the official record.')
+<div class="daruso-panel p-4"><form method="POST" action="{{ route('leader.activity-reports.update',$report) }}">@csrf @method('PUT')
+<label class="form-label">Ministry</label><select class="form-select mb-3" name="ministry_id" required>@foreach($ministries as $m)<option value="{{ $m->id }}" @selected(old('ministry_id',$report->ministry_id)==$m->id)>{{ $m->name }}</option>@endforeach</select>
+<label class="form-label">Leadership term</label><select class="form-select mb-3" name="leadership_term_id"><option value="">Unspecified</option>@foreach($terms as $term)<option value="{{ $term->id }}" @selected(old('leadership_term_id',$report->leadership_term_id)==$term->id)>{{ $term->name }}</option>@endforeach</select>
+<div class="row g-3 mb-3"><div class="col-md-6"><label class="form-label">Period start</label><input class="form-control" type="date" name="period_start" value="{{ old('period_start',$report->period_start->toDateString()) }}" required></div><div class="col-md-6"><label class="form-label">Period end</label><input class="form-control" type="date" name="period_end" value="{{ old('period_end',$report->period_end->toDateString()) }}" required></div></div>
+@foreach(['summary'=>'Summary','achievements'=>'Achievements','challenges'=>'Challenges','recommendations'=>'Recommendations'] as $field=>$label)<label class="form-label">{{ $label }}</label><textarea class="form-control mb-3" rows="3" name="{{ $field }}" @required($field==='summary')>{{ old($field,$report->$field) }}</textarea>@endforeach
+<button class="btn btn-primary">Save changes</button> <a href="{{ route('leader.activity-reports.show',$report) }}" class="btn btn-light">Cancel</a>
+</form></div></x-app-layout>

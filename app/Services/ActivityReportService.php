@@ -81,8 +81,8 @@ class ActivityReportService
 
     public function review(MinistryActivityReport $report, User $reviewer, string $notes, ?Request $request = null): MinistryActivityReport
     {
-        if ($report->status === ActivityReportStatus::Draft) {
-            throw new \DomainException('A draft report must be submitted before review.');
+        if ($report->status !== ActivityReportStatus::Submitted) {
+            throw new \DomainException('Only a submitted report can be reviewed.');
         }
 
         $report->update([

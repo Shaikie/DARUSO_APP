@@ -65,7 +65,7 @@ class PollService
             throw new \DomainException('A poll that already has votes cannot be edited.');
         }
 
-        return DB::transaction(function () use ($poll, $data, $options, $actor, $request): Poll {
+        return DB::transaction(function () use ($poll, $data, $options, $request): Poll {
             $old = $poll->only(['title', 'status']);
 
             $poll->update([
@@ -91,6 +91,10 @@ class PollService
 
     public function open(Poll $poll, User $actor, ?Request $request = null): Poll
     {
+        if ($poll->status !== PollStatus::Draft || $poll->options()->count() < 2) {
+            throw new \DomainException('Only a draft poll with at least two options can be opened.');
+        }
+
         $poll->update([
             'status' => PollStatus::Open,
             'starts_at' => $poll->starts_at ?? now(),
@@ -103,6 +107,10 @@ class PollService
 
     public function close(Poll $poll, User $actor, ?Request $request = null): Poll
     {
+        if ($poll->status !== PollStatus::Open) {
+            throw new \DomainException('Only an open poll can be closed.');
+        }
+
         $poll->update([
             'status' => PollStatus::Closed,
             'ends_at' => $poll->ends_at ?? now(),

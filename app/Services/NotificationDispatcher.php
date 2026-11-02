@@ -6,6 +6,8 @@ use App\Enums\Priority;
 use App\Models\AudienceRule;
 use App\Models\Notification;
 use App\Models\User;
+use App\Mail\NotificationMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -16,12 +18,14 @@ use Illuminate\Support\Collection;
  * Delivery is separated from business logic on purpose: callers only describe
  * *what* to send and to whom. Channels beyond the in-app database (email, SMS,
  * WhatsApp, push) are added later as additional dispatchers driven by the same
- * command, without touching the services that call this one.
+ * command, without touching the services that call this one. Email is sent only
+ * when the recipient has explicitly enabled that channel.
  */
 class NotificationDispatcher
 {
     public function __construct(
         private readonly AudienceResolver $audience,
+        private readonly NotificationPreferenceService $preferences,
     ) {}
 
     /**
@@ -36,16 +40,30 @@ class NotificationDispatcher
         ?Model $related = null,
         ?string $actionUrl = null,
     ): Notification {
-        return Notification::create([
+        $category = $this->preferences->categoryFor($related);
+        $preference = $this->preferences->for($recipient, $category);
+
+        $notification = Notification::create([
             'title' => $title,
             'message' => $message,
             'sender_id' => $sender->getKey(),
             'recipient_id' => $recipient->getKey(),
             'priority' => $priority,
+            'read_at' => $preference['in_app'] ? null : now(),
             'related_type' => $related?->getMorphClass(),
             'related_id' => $related?->getKey(),
             'action_url' => $actionUrl,
         ]);
+
+        if ($preference['email']) {
+            try {
+                Mail::to($recipient->email)->send(new NotificationMail($notification));
+            } catch (\Throwable $exception) {
+                report($exception);
+            }
+        }
+
+        return $notification;
     }
 
     /**
@@ -74,18 +92,29 @@ class NotificationDispatcher
         }
 
         $now = now();
+        $createdAtRange = [$now->copy()->startOfSecond(), $now->copy()->endOfSecond()];
         $relatedType = $related?->getMorphClass();
         $relatedId = $related?->getKey();
         $ruleIds = $rules->pluck('id')->all();
 
+        $recipients = User::query()->whereIn('id', $recipientIds->all())->get()->keyBy('id');
+        $category = $this->preferences->categoryFor($related);
+        $preferenceMatrix = $this->preferences->forMany($recipients->values(), $category);
         $rows = [];
         foreach ($recipientIds as $userId) {
+            $recipient = $recipients->get($userId);
+            if ($recipient === null) {
+                continue;
+            }
+
+            $preference = $preferenceMatrix->get($recipient->getKey());
             $rows[] = [
                 'title' => $title,
                 'message' => $message,
                 'sender_id' => $sender->getKey(),
                 'recipient_id' => $userId,
                 'priority' => $priority->value,
+                'read_at' => $preference['in_app'] ? null : $now,
                 'related_type' => $relatedType,
                 'related_id' => $relatedId,
                 'created_at' => $now,
@@ -93,14 +122,48 @@ class NotificationDispatcher
             ];
         }
 
+        if ($rows === []) {
+            return 0;
+        }
+
         Notification::insert($rows);
+
+        foreach ($recipients as $recipient) {
+            $preference = $preferenceMatrix->get($recipient->getKey());
+            if (! $preference['email']) {
+                continue;
+            }
+
+            $notification = Notification::query()
+                ->where('recipient_id', $recipient->getKey())
+                ->where('sender_id', $sender->getKey())
+                ->where('title', $title)
+                ->where('created_at', '>=', $createdAtRange[0])
+                ->where('created_at', '<=', $createdAtRange[1])
+                ->where('related_type', $relatedType)
+                ->where('related_id', $relatedId)
+                ->latest('id')
+                ->first();
+
+            if ($notification !== null) {
+                try {
+                    Mail::to($recipient->email)->send(new NotificationMail($notification));
+                } catch (\Throwable $exception) {
+                    report($exception);
+                }
+            }
+        }
 
         // Record the targeting intent against every delivered notification.
         if ($ruleIds !== []) {
             $delivered = Notification::query()
                 ->whereIn('recipient_id', $recipientIds->all())
                 ->where('title', $title)
-                ->whereNull('read_at')
+                ->where('created_at', '>=', $createdAtRange[0])
+                ->where('created_at', '<=', $createdAtRange[1])
+                ->where('sender_id', $sender->getKey())
+                ->where('related_type', $relatedType)
+                ->where('related_id', $relatedId)
                 ->latest('id')
                 ->limit(count($rows))
                 ->pluck('id');

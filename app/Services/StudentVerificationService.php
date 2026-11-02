@@ -227,6 +227,12 @@ class StudentVerificationService
 
     private function ensureStudentRole(User $user): void
     {
+        // Leadership invitees retain their verified student profile but must
+        // not regain the denied student role, which would block the leader area.
+        if ($user->isLeader()) {
+            return;
+        }
+
         $role = Role::firstOrCreate(
             ['name' => RoleName::Student->value],
             ['description' => RoleName::Student->label()],

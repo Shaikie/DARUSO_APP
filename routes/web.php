@@ -27,6 +27,8 @@ use App\Http\Controllers\Student\DocumentController as StudentDocumentController
 use App\Http\Controllers\Student\EventController as StudentEventController;
 use App\Http\Controllers\Student\MeetingController as StudentMeetingController;
 use App\Http\Controllers\Student\NotificationController as StudentNotificationController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PlatformController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\Student\RepresentativeController as StudentRepresentativeController;
 use App\Http\Controllers\StudentProfileController;
@@ -76,13 +78,13 @@ Route::middleware(['auth', 'verified', 'account.active'])->group(function (): vo
     Route::prefix('student')->name('student.')->group(function (): void {
         // The community feed is available to authenticated users, including leaders.
         // Student-service records remain protected by the active-student gate.
-            Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
-            Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
-            Route::post('/posts/{post}/like', [PostController::class, 'like'])->name('posts.like');
-            Route::post('/posts/{post}/react', [PostController::class, 'react'])->name('posts.react');
-            Route::post('/posts/{post}/comments', [PostController::class, 'comment'])->name('posts.comments.store');
-            Route::delete('/posts/{post}/comments/{comment}', [PostController::class, 'deleteComment'])->name('posts.comments.destroy');
-            Route::post('/posts/{post}/share', [PostController::class, 'share'])->name('posts.share');
+        Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
+        Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
+        Route::post('/posts/{post}/like', [PostController::class, 'like'])->name('posts.like');
+        Route::post('/posts/{post}/react', [PostController::class, 'react'])->name('posts.react');
+        Route::post('/posts/{post}/comments', [PostController::class, 'comment'])->name('posts.comments.store');
+        Route::delete('/posts/{post}/comments/{comment}', [PostController::class, 'deleteComment'])->name('posts.comments.destroy');
+        Route::post('/posts/{post}/share', [PostController::class, 'share'])->name('posts.share');
 
         Route::middleware('student.active')->group(function (): void {
             Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
@@ -107,6 +109,18 @@ Route::middleware(['auth', 'verified', 'account.active'])->group(function (): vo
 
             Route::get('/representatives', [StudentRepresentativeController::class, 'index'])
                 ->name('representatives.index');
+
+            Route::get('/feedback', [PlatformController::class, 'feedbackIndex'])->name('feedback.index');
+            Route::get('/feedback/create', [PlatformController::class, 'feedbackCreate'])->name('feedback.create');
+            Route::post('/feedback', [PlatformController::class, 'feedbackStore'])->name('feedback.store');
+            Route::get('/feedback/{feedback}', [PlatformController::class, 'feedbackShow'])->name('feedback.show');
+            Route::get('/polls', [PlatformController::class, 'pollsIndex'])->name('polls.index');
+            Route::get('/polls/{poll}', [PlatformController::class, 'pollShow'])->name('polls.show');
+            Route::post('/polls/{poll}/vote', [PlatformController::class, 'pollVote'])->name('polls.vote');
+            Route::get('/calendar', [PlatformController::class, 'calendar'])->name('calendar.index');
+            Route::get('/payments', [PaymentController::class, 'studentIndex'])->name('payments.index');
+            Route::get('/payments/{paymentRequest}', [PaymentController::class, 'studentShow'])->name('payments.show');
+            Route::post('/payments/{paymentRequest}/submit', [PaymentController::class, 'studentSubmit'])->name('payments.submit');
 
         });
 
@@ -184,6 +198,65 @@ Route::middleware(['auth', 'verified', 'account.active'])->group(function (): vo
 
         Route::get('reports', [LeaderReportController::class, 'index'])->name('reports.index');
         Route::get('audit-logs', [LeaderAuditLogController::class, 'index'])->name('audit-logs.index');
+        Route::get('payments', [PaymentController::class, 'leaderIndex'])->name('payments.index');
+        Route::get('payments/create', [PaymentController::class, 'leaderCreate'])->name('payments.create');
+        Route::post('payments', [PaymentController::class, 'leaderStore'])->name('payments.store');
+        Route::get('payments/{paymentRequest}', [PaymentController::class, 'leaderShow'])->name('payments.show');
+        Route::post('payments/{paymentRequest}/close', [PaymentController::class, 'leaderClose'])->name('payments.close');
+        Route::post('payments/{paymentRequest}/remind', [PaymentController::class, 'leaderRemind'])->name('payments.remind');
+        Route::post('payments/{paymentRequest}/submissions/{submission}/review', [PaymentController::class, 'leaderReview'])->name('payments.review');
+
+        Route::get('feedback', [PlatformController::class, 'leaderFeedbackIndex'])->name('feedback.index');
+        Route::get('feedback/{feedback}', [PlatformController::class, 'leaderFeedbackShow'])->name('feedback.show');
+        Route::post('feedback/{feedback}/respond', [PlatformController::class, 'leaderFeedbackRespond'])->name('feedback.respond');
+
+        Route::get('polls', [PlatformController::class, 'leaderPolls'])->name('polls.index');
+        Route::get('polls/create', [PlatformController::class, 'pollCreate'])->name('polls.create');
+        Route::get('polls/{poll}', [PlatformController::class, 'pollShow'])->name('polls.show');
+        Route::get('polls/{poll}/edit', [PlatformController::class, 'pollEdit'])->name('polls.edit');
+        Route::put('polls/{poll}', [PlatformController::class, 'pollUpdate'])->name('polls.update');
+        Route::post('polls', [PlatformController::class, 'pollStore'])->name('polls.store');
+        Route::post('polls/{poll}/open', [PlatformController::class, 'pollOpen'])->name('polls.open');
+        Route::post('polls/{poll}/close', [PlatformController::class, 'pollClose'])->name('polls.close');
+
+        Route::get('calendar', [PlatformController::class, 'calendar'])->name('calendar.index');
+        Route::post('calendar', [PlatformController::class, 'calendarStore'])->name('calendar.store');
+        Route::get('calendar/{entry}/edit', [PlatformController::class, 'calendarEdit'])->name('calendar.edit');
+        Route::put('calendar/{entry}', [PlatformController::class, 'calendarUpdate'])->name('calendar.update');
+        Route::delete('calendar/{entry}', [PlatformController::class, 'calendarDelete'])->name('calendar.destroy');
+
+        Route::get('tasks', [PlatformController::class, 'tasksIndex'])->name('tasks.index');
+        Route::get('tasks/create', [PlatformController::class, 'taskCreate'])->name('tasks.create');
+        Route::post('tasks', [PlatformController::class, 'taskStore'])->name('tasks.store');
+        Route::get('tasks/{task}', [PlatformController::class, 'taskShow'])->name('tasks.show');
+        Route::patch('tasks/{task}/status', [PlatformController::class, 'taskStatus'])->name('tasks.status');
+
+        Route::get('handovers', [PlatformController::class, 'handoversIndex'])->name('handovers.index');
+        Route::get('handovers/create', [PlatformController::class, 'handoverCreate'])->name('handovers.create');
+        Route::post('handovers', [PlatformController::class, 'handoverStore'])->name('handovers.store');
+        Route::get('handovers/{handover}', [PlatformController::class, 'handoverShow'])->name('handovers.show');
+        Route::get('handovers/{handover}/edit', [PlatformController::class, 'handoverEdit'])->name('handovers.edit');
+        Route::put('handovers/{handover}', [PlatformController::class, 'handoverUpdate'])->name('handovers.update');
+        Route::post('handovers/{handover}/submit', [PlatformController::class, 'handoverSubmit'])->name('handovers.submit');
+        Route::post('handovers/{handover}/acknowledge', [PlatformController::class, 'handoverAcknowledge'])->name('handovers.acknowledge');
+
+        Route::get('activity-reports', [PlatformController::class, 'activityReportsIndex'])->name('activity-reports.index');
+        Route::get('activity-reports/create', [PlatformController::class, 'activityReportCreate'])->name('activity-reports.create');
+        Route::post('activity-reports', [PlatformController::class, 'activityReportStore'])->name('activity-reports.store');
+        Route::get('activity-reports/{report}', [PlatformController::class, 'activityReportShow'])->name('activity-reports.show');
+        Route::get('activity-reports/{report}/edit', [PlatformController::class, 'activityReportEdit'])->name('activity-reports.edit');
+        Route::put('activity-reports/{report}', [PlatformController::class, 'activityReportUpdate'])->name('activity-reports.update');
+        Route::post('activity-reports/{report}/submit', [PlatformController::class, 'activityReportSubmit'])->name('activity-reports.submit');
+        Route::post('activity-reports/{report}/review', [PlatformController::class, 'activityReportReview'])->name('activity-reports.review');
+
+        Route::get('invitations', [PlatformController::class, 'invitationsIndex'])->name('invitations.index');
+        Route::get('invitations/create', [PlatformController::class, 'invitationCreate'])->name('invitations.create');
+        Route::post('invitations', [PlatformController::class, 'invitationStore'])->name('invitations.store');
+        Route::post('invitations/{invitation}/revoke', [PlatformController::class, 'invitationRevoke'])->name('invitations.revoke');
+
+        Route::get('students/directory', [PlatformController::class, 'directoryIndex'])->name('directory.index');
+        Route::get('students/directory/{profile}', [PlatformController::class, 'directoryShow'])->name('directory.show');
+
         Route::get('settings', [LeaderSettingController::class, 'index'])->name('settings.index');
         Route::put('settings', [LeaderSettingController::class, 'update'])->name('settings.update');
     });
@@ -202,6 +275,13 @@ Route::middleware(['auth', 'verified', 'account.active'])->group(function (): vo
     | Profile
     |--------------------------------------------------------------------------
     */
+
+    Route::get('/search', [PlatformController::class, 'search'])->name('search');
+    Route::get('/notification-preferences', [PlatformController::class, 'preferences'])->name('notification-preferences.edit');
+    Route::put('/notification-preferences', [PlatformController::class, 'updatePreferences'])->name('notification-preferences.update');
+
+    Route::get('/leadership-invitations/{invitation}/accept', [PlatformController::class, 'invitationAccept'])
+        ->middleware('signed')->name('leadership.invitations.accept');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
