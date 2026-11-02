@@ -2,8 +2,20 @@
 
 namespace App\Services;
 
+use App\Models\CalendarEntry;
+use App\Models\Complaint;
+use App\Models\Event;
+use App\Models\Feedback;
+use App\Models\Handover;
+use App\Models\LeadershipInvitation;
+use App\Models\LeaderTask;
+use App\Models\Meeting;
+use App\Models\MinistryActivityReport;
 use App\Models\Notification;
 use App\Models\NotificationPreference;
+use App\Models\PaymentRequest;
+use App\Models\Post;
+use App\Models\PostComment;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
