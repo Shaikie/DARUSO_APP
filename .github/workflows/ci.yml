@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - feat/daruso-platform-hardening
+      - feat/daruso-complete-platform-overhaul
   pull_request:
     branches:
       - main
