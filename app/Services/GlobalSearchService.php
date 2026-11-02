@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\AnnouncementStatus;
 use App\Enums\PermissionName;
+use App\Enums\RoleName;
 use App\Models\Announcement;
 use App\Models\CalendarEntry;
 use App\Models\Complaint;
@@ -18,6 +19,7 @@ use App\Models\PaymentRequest;
 use App\Models\Post;
 use App\Models\StudentProfile;
 use App\Models\User;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 /**
@@ -298,7 +300,7 @@ class GlobalSearchService
             $inner->where('from_user_id', $user->getKey())
                 ->orWhere('to_user_id', $user->getKey());
 
-            if ($user->isAdministrator() || $user->hasRole(\App\Enums\RoleName::SecretaryGeneral)) {
+            if ($user->isAdministrator() || $user->hasRole(RoleName::SecretaryGeneral)) {
                 $inner->orWhereRaw('1 = 1');
             }
         });
@@ -394,7 +396,7 @@ class GlobalSearchService
     }
 
     /**
-     * @param  \Illuminate\Support\Collection<int, array{title: string, meta: string, url: string}>  $results
+     * @param  Collection<int, array{title: string, meta: string, url: string}>  $results
      * @return array{label: string, icon: string, results: array<int, array{title: string, meta: string, url: string}>}|null
      */
     private function group(string $label, string $icon, $results): ?array
