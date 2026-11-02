@@ -57,6 +57,30 @@ jobs:
         run: >-
           vendor/bin/pint --test
           app/Enums/StudentStatus.php
+          app/Enums/PermissionName.php
+          app/Enums/PaymentRequestStatus.php
+          app/Enums/PaymentSubmissionStatus.php
+          app/Http/Controllers/PlatformController.php
+          app/Http/Controllers/PaymentController.php
+          app/Http/Controllers/Leader/StudentController.php
+          app/Models/PaymentRequest.php
+          app/Models/PaymentSubmission.php
+          app/Mail/NotificationMail.php
+          app/Services/NotificationDispatcher.php
+          app/Services/NotificationPreferenceService.php
+          app/Services/GlobalSearchService.php
+          app/Services/CalendarService.php
+          app/Services/PollService.php
+          app/Services/FeedbackService.php
+          app/Services/ActivityReportService.php
+          app/Services/LeadershipInvitationService.php
+          app/Services/PaymentRequestService.php
+          app/Services/StudentVerificationService.php
+          database/migrations/2026_11_02_000001_create_payment_requests_and_submissions.php
+          database/seeders/RoleSeeder.php
+          routes/web.php
+          tests/Feature/PlatformFeaturesTest.php
+          tests/Feature/PrivatePaymentWorkflowTest.php
           app/Http/Controllers/Leader/StudentController.php
           app/Http/Controllers/Leader/DashboardController.php
           app/Http/Controllers/ProfileController.php
