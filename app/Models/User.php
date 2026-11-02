@@ -326,7 +326,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function canLogin(): bool
     {
-        return $this->account_status->canLogin();
+        return ($this->account_status ?? AccountStatus::Active)->canLogin();
     }
 
     /**
@@ -334,7 +334,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function isActiveAccount(): bool
     {
-        return $this->account_status->isApproved();
+        return ($this->account_status ?? AccountStatus::Active)->isApproved();
     }
 
     /**

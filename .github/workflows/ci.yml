@@ -65,6 +65,7 @@ jobs:
           app/Http/Middleware/EnsureLeader.php
           app/Http/Requests/StoreStudentProfileRequest.php
           app/Models/User.php
+          database/factories/UserFactory.php
           bootstrap/app.php
           database/migrations/2026_11_01_120000_add_pending_student_verification_status.php
           routes/auth.php

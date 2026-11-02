@@ -121,7 +121,7 @@ class StudentVerificationService
      */
     public function setAccountStatus(User $target, AccountStatus $status, User $actor, ?string $reason = null, ?Request $request = null): User
     {
-        $old = $target->account_status;
+        $old = $target->account_status ?? AccountStatus::Active;
 
         if ($old === $status) {
             return $target;
