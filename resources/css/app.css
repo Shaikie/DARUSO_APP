@@ -1339,3 +1339,205 @@ body {
     .landing-preview-tile strong { font-size: .68rem; }
     .landing-float-card small { font-size: .54rem; }
 }
+
+
+/* ==========================================================================
+   DARUSO glass workspace system
+   A consistent frosted-glass treatment for every authenticated module.
+   ========================================================================== */
+:root {
+    --daruso-bg: #edf1fa;
+    --daruso-surface: rgba(255, 255, 255, .72);
+    --daruso-surface-soft: rgba(255, 255, 255, .48);
+    --daruso-border: rgba(255, 255, 255, .78);
+    --daruso-text: #18213a;
+    --daruso-muted: #68738d;
+    --daruso-primary: #5c61df;
+    --daruso-primary-dark: #454ac1;
+    --daruso-primary-soft: rgba(100, 104, 230, .11);
+    --daruso-shadow: 0 16px 42px rgba(39, 52, 94, .075), inset 0 1px 0 rgba(255, 255, 255, .82);
+    --bs-body-bg: var(--daruso-bg);
+    --bs-body-color: var(--daruso-text);
+    --bs-primary: var(--daruso-primary);
+    --bs-link-color: var(--daruso-primary);
+    --bs-link-hover-color: var(--daruso-primary-dark);
+    --bs-border-color: rgba(124, 139, 177, .18);
+}
+
+.daruso-workspace-body {
+    min-height: 100vh;
+    background:
+        radial-gradient(ellipse at 7% 4%, rgba(128, 119, 245, .17), transparent 31rem),
+        radial-gradient(ellipse at 95% 18%, rgba(77, 190, 183, .14), transparent 29rem),
+        radial-gradient(ellipse at 58% 100%, rgba(126, 153, 229, .13), transparent 34rem),
+        linear-gradient(135deg, #f2f4fc 0%, #e9eef9 48%, #f4f6fc 100%);
+    background-attachment: fixed;
+}
+
+.daruso-app-shell { background: transparent; }
+
+.daruso-sidebar {
+    background: rgba(255, 255, 255, .66);
+    border-right: 1px solid rgba(255, 255, 255, .82);
+    box-shadow: 10px 0 40px rgba(49, 62, 105, .045);
+    -webkit-backdrop-filter: blur(26px) saturate(155%);
+    backdrop-filter: blur(26px) saturate(155%);
+}
+
+.daruso-brand { border-bottom-color: rgba(255, 255, 255, .78); }
+.daruso-brand-mark {
+    background: linear-gradient(145deg, #7975f0, #4d54c9);
+    box-shadow: 0 9px 22px rgba(82, 83, 202, .25), inset 0 1px 0 rgba(255,255,255,.28);
+}
+.daruso-sidebar-profile {
+    border-color: rgba(255,255,255,.85);
+    background: rgba(255,255,255,.48);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.85);
+}
+.daruso-nav-link { color: #59647f; }
+.daruso-nav-link:hover { background: rgba(255,255,255,.65); }
+.daruso-nav-link.active {
+    color: #4f54c9;
+    background: linear-gradient(110deg, rgba(115,112,239,.16), rgba(102,174,205,.10));
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.65);
+}
+.daruso-sidebar-footer {
+    border-top-color: rgba(255,255,255,.78);
+    background: rgba(255,255,255,.48);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+}
+
+.daruso-topbar {
+    background: rgba(247, 249, 255, .66);
+    border-bottom-color: rgba(255,255,255,.82);
+    box-shadow: 0 8px 30px rgba(42, 54, 96, .035);
+    -webkit-backdrop-filter: blur(26px) saturate(155%);
+    backdrop-filter: blur(26px) saturate(155%);
+}
+.daruso-icon-button, .daruso-menu-button {
+    border-color: rgba(255,255,255,.88);
+    background: rgba(255,255,255,.55);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
+}
+.daruso-icon-button:hover, .daruso-menu-button:hover { background: rgba(255,255,255,.9); }
+.daruso-user-button { border-radius: 13px; }
+.daruso-user-button:hover { background: rgba(255,255,255,.48); }
+
+.daruso-page { padding-top: 32px; }
+.daruso-page-title { color: #1c2542; letter-spacing: -.04em; }
+.daruso-page-subtitle { color: #74809b; }
+.daruso-eyebrow, .daruso-kicker { color: #6265d9; }
+.daruso-footer {
+    border-top-color: rgba(255,255,255,.82);
+    background: rgba(255,255,255,.42);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+}
+
+/* Every Bootstrap card and shared panel uses the same frosted surface. */
+.card, .daruso-panel {
+    border: 1px solid rgba(255,255,255,.82) !important;
+    background: rgba(255,255,255,.66) !important;
+    box-shadow: 0 16px 42px rgba(39,52,94,.065), inset 0 1px 0 rgba(255,255,255,.92);
+    -webkit-backdrop-filter: blur(22px) saturate(145%);
+    backdrop-filter: blur(22px) saturate(145%);
+}
+.card:hover { box-shadow: 0 20px 48px rgba(39,52,94,.095), inset 0 1px 0 rgba(255,255,255,.96); }
+.card-header, .card-footer {
+    border-color: rgba(130,143,180,.15) !important;
+    background: rgba(255,255,255,.34) !important;
+}
+.card-body { color: var(--daruso-text); }
+.card .text-muted, .daruso-panel .text-muted { color: #74809a !important; }
+
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--daruso-text);
+    --bs-table-border-color: rgba(126,140,177,.16);
+}
+.table thead th {
+    color: #68738e;
+    background: rgba(255,255,255,.38);
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .055em;
+    text-transform: uppercase;
+}
+.table tbody tr { transition: background .16s ease; }
+.table tbody tr:hover { --bs-table-bg: rgba(255,255,255,.34); }
+
+.form-control, .form-select, .input-group-text {
+    border-color: rgba(130,143,180,.24);
+    background-color: rgba(255,255,255,.62);
+    color: #202a46;
+    box-shadow: inset 0 1px 2px rgba(40,52,90,.025);
+}
+.form-control:focus, .form-select:focus {
+    border-color: rgba(99,101,220,.55);
+    background-color: rgba(255,255,255,.88);
+    box-shadow: 0 0 0 .22rem rgba(99,101,220,.12);
+}
+.form-control::placeholder { color: #9aa3b7; }
+.form-check-input { border-color: rgba(110,123,160,.4); }
+.form-check-input:checked { background-color: var(--daruso-primary); border-color: var(--daruso-primary); }
+
+.dropdown-menu, .modal-content, .offcanvas {
+    border: 1px solid rgba(255,255,255,.86);
+    background: rgba(250,251,255,.86);
+    box-shadow: 0 22px 65px rgba(35,46,85,.16), inset 0 1px 0 rgba(255,255,255,.9);
+    -webkit-backdrop-filter: blur(26px) saturate(155%);
+    backdrop-filter: blur(26px) saturate(155%);
+}
+.dropdown-item { border-radius: 8px; }
+.dropdown-item:hover, .dropdown-item:focus { background: rgba(100,104,230,.1); color: #4f54c9; }
+.modal-header, .modal-footer { border-color: rgba(125,139,176,.16); }
+.alert { border-color: rgba(255,255,255,.75); background: rgba(255,255,255,.58); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+.pagination { gap: 4px; }
+.page-link { border-color: rgba(255,255,255,.8); background: rgba(255,255,255,.55); }
+.page-item.active .page-link { background: var(--daruso-primary); border-color: var(--daruso-primary); }
+
+.auth-card {
+    background: rgba(255,255,255,.78) !important;
+    border-color: rgba(255,255,255,.48) !important;
+}
+.daruso-guest-body::before {
+    position: fixed;
+    inset: 0;
+    content: "";
+    pointer-events: none;
+    background: radial-gradient(circle at 50% 45%, rgba(119,112,255,.09), transparent 34rem);
+}
+
+.daruso-mobile-overlay {
+    background: rgba(24,31,58,.35);
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
+}
+
+@media (max-width: 991.98px) {
+    .daruso-sidebar {
+        background: rgba(248,250,255,.88);
+        box-shadow: 20px 0 60px rgba(30,42,82,.18);
+    }
+    .daruso-page { padding: 24px 20px 34px; }
+    .daruso-topbar { padding-right: 18px; padding-left: 18px; }
+}
+
+@media (max-width: 575.98px) {
+    .daruso-page { padding: 20px 14px 28px; }
+    .daruso-page-header { flex-direction: column; align-items: stretch; gap: 12px; }
+    .daruso-page-actions { width: 100%; }
+    .daruso-page-actions > .btn { flex: 1 1 auto; }
+    .daruso-footer { padding: 14px; }
+    .card-body { padding: 1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}
