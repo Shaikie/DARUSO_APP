@@ -1,10 +1,13 @@
 <x-app-layout>
     @php
         $statusValue = $status?->value;
-        $isPending = $statusValue === 'pending_verification';
+        $verificationValue = $verificationStatus?->value ?? null;
+        $isPending = in_array($statusValue, ['pending', 'pending_verification'], true)
+            || $verificationValue === 'pending';
         $title = $isPending ? 'Your student record is under review' : 'Student services are unavailable';
         $description = match ($statusValue) {
-            'pending_verification' => 'Student services will become available after your academic details have been verified.',
+            'pending', 'pending_verification' => 'Student services will become available after your academic details have been verified.',
+            'active' => 'Your academic details are awaiting verification before student services can be enabled.',
             'suspended' => 'Your student access has been suspended. Contact the DARUSO office for clarification.',
             'graduated' => 'This student record is marked as graduated, so current-student services are no longer available.',
             'expelled' => 'This student record is not eligible for current-student services. Contact the authorised university office if you believe this is incorrect.',
@@ -27,9 +30,8 @@
                         @if ($isPending)
                             <p class="mb-2">Your registration details have been submitted successfully.</p>
                             <p class="text-muted small mb-3">
-                                A DARUSO administrator or authorised student-services leader must review
-                                your registration number and academic information before your account is
-                                activated for student services.
+                                An authorised DARUSO leader must review your registration number and
+                                academic information before student services become available.
                             </p>
                         @else
                             <p class="mb-2">Your current student record status restricts access to student services.</p>

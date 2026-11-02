@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\StudentStatus;
+use App\Enums\VerificationStatus;
 use App\Models\StudentProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -19,6 +20,7 @@ class StudentVerificationTest extends TestCase
         StudentProfile::factory()->create([
             'user_id' => $user->getKey(),
             'status' => StudentStatus::PendingVerification,
+            'verification_status' => VerificationStatus::Pending,
         ]);
 
         $this->actingAs($user)
@@ -66,6 +68,7 @@ class StudentVerificationTest extends TestCase
         $this->assertDatabaseHas('student_profiles', [
             'user_id' => $user->getKey(),
             'status' => StudentStatus::PendingVerification->value,
+            'verification_status' => VerificationStatus::Pending->value,
         ]);
     }
 
@@ -91,11 +94,14 @@ class StudentVerificationTest extends TestCase
         $this->assertDatabaseHas('student_profiles', [
             'id' => $profile->getKey(),
             'status' => StudentStatus::Active->value,
+            'verification_status' => VerificationStatus::Verified->value,
         ]);
+
+        $this->assertTrue($studentUser->fresh()->hasRole(\App\Enums\RoleName::Student));
 
         $this->assertDatabaseHas('notifications', [
             'recipient_id' => $studentUser->getKey(),
-            'title' => 'Student account verified',
+            'title' => 'Student record verified',
         ]);
     }
 }
