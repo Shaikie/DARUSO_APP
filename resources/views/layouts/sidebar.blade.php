@@ -49,18 +49,20 @@
 
             <div class="daruso-nav-label mt-3">Administration</div>
             @php($adminLinks = [
-                ['leader.ministries.index', 'leader.ministries.*', 'building', 'Ministries'],
-                ['leader.committees.index', 'leader.committees.*', 'diagram-3', 'Committees'],
-                ['leader.leadership.index', 'leader.leadership.*', 'person-badge', 'Leadership'],
-                ['leader.reports.index', 'leader.reports.*', 'bar-chart', 'Reports'],
-                ['leader.audit-logs.index', 'leader.audit-logs.*', 'journal-text', 'Audit logs'],
-                ['leader.settings.index', 'leader.settings.*', 'gear', 'Settings'],
-                ['leader.posts.index', 'leader.posts.*', 'pencil-square', 'Post management'],
+                ['leader.ministries.index', 'leader.ministries.*', 'building', 'Ministries', 'ministry.manage'],
+                ['leader.committees.index', 'leader.committees.*', 'diagram-3', 'Committees', 'committee.manage'],
+                ['leader.leadership.index', 'leader.leadership.*', 'person-badge', 'Leadership', 'leader.manage'],
+                ['leader.reports.index', 'leader.reports.*', 'bar-chart', 'Reports', 'report.view'],
+                ['leader.audit-logs.index', 'leader.audit-logs.*', 'journal-text', 'Audit logs', 'audit.view'],
+                ['leader.settings.index', 'leader.settings.*', 'gear', 'Settings', 'system.settings'],
+                ['leader.posts.index', 'leader.posts.*', 'pencil-square', 'Post management', 'post.create'],
             ])
-            @foreach ($adminLinks as [$href, $pattern, $icon, $label])
-                <a href="{{ route($href) }}" class="daruso-nav-link {{ request()->routeIs($pattern) ? 'active' : '' }}">
-                    <i class="bi bi-{{ $icon }}"></i><span>{{ $label }}</span>
-                </a>
+            @foreach ($adminLinks as [$href, $pattern, $icon, $label, $permission])
+                @if ($user->can($permission))
+                    <a href="{{ route($href) }}" class="daruso-nav-link {{ request()->routeIs($pattern) ? 'active' : '' }}">
+                        <i class="bi bi-{{ $icon }}"></i><span>{{ $label }}</span>
+                    </a>
+                @endif
             @endforeach
         @else
             @php($studentLinks = [
