@@ -390,14 +390,14 @@ class User extends Authenticatable implements MustVerifyEmail
         $termBound = $this->hasAnyRole([RoleName::MinistryLeader, RoleName::CommitteeLeader])
             || $this->leaderProfile()->exists();
 
-        if (!$termBound) {
+        if (! $termBound) {
             return true;
         }
 
         $hasAssignments = LeaderAssignment::query()->where('user_id', $this->getKey())->exists();
         $hasMemberships = CommitteeMember::query()->where('user_id', $this->getKey())->exists();
 
-        if (!$hasAssignments && !$hasMemberships) {
+        if (! $hasAssignments && ! $hasMemberships) {
             return true;
         }
 
