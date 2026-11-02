@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class PaymentRequest extends Model
 {
     use Searchable;
+
     protected $fillable = [
         'title',
         'description',
