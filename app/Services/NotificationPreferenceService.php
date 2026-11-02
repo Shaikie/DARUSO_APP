@@ -2,8 +2,20 @@
 
 namespace App\Services;
 
+use App\Models\CalendarEntry;
+use App\Models\Complaint;
+use App\Models\Event;
+use App\Models\Feedback;
+use App\Models\Handover;
+use App\Models\LeadershipInvitation;
+use App\Models\LeaderTask;
+use App\Models\Meeting;
+use App\Models\MinistryActivityReport;
 use App\Models\Notification;
 use App\Models\NotificationPreference;
+use App\Models\PaymentRequest;
+use App\Models\Post;
+use App\Models\PostComment;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -13,7 +25,7 @@ use Illuminate\Support\Str;
  * Applies per-user notification channel preferences.
  *
  * In-app delivery is always persisted so the notification history stays
- * complete; the preference only decides whether an additional email is queued.
+ * complete; the preference controls whether an additional email is sent.
  * Absence of a row means the category default applies, so new categories need
  * no data migration.
  */
@@ -32,6 +44,7 @@ class NotificationPreferenceService
             'meetings' => 'Meetings and events',
             'community' => 'Community activity',
             'leadership' => 'Leadership operations',
+            'payments' => 'Payment requests and reminders',
         ];
     }
 
@@ -53,6 +66,30 @@ class NotificationPreferenceService
             'in_app' => $preference?->in_app ?? true,
             'email' => $preference?->email ?? false,
         ];
+    }
+
+    /**
+     * Resolve one category for a collection of recipients without N+1 queries.
+     *
+     * @param  iterable<User>  $users
+     * @return Collection<int, array{in_app: bool, email: bool}>
+     */
+    public function forMany(iterable $users, string $category = 'general'): Collection
+    {
+        $category = $this->normaliseCategory($category);
+        $userIds = collect($users)->map(fn (User $user): int => $user->getKey())->values();
+        $stored = NotificationPreference::query()
+            ->whereIn('user_id', $userIds)
+            ->where('category', $category)
+            ->get()
+            ->keyBy('user_id');
+
+        return $userIds->mapWithKeys(fn (int $userId): array => [
+            $userId => [
+                'in_app' => (bool) ($stored[$userId]->in_app ?? true),
+                'email' => (bool) ($stored[$userId]->email ?? false),
+            ],
+        ]);
     }
 
     /**
@@ -134,6 +171,7 @@ class NotificationPreferenceService
             $related instanceof \App\Models\Handover,
             $related instanceof \App\Models\LeadershipInvitation,
             $related instanceof \App\Models\MinistryActivityReport => 'leadership',
+            $related instanceof \App\Models\PaymentRequest => 'payments',
             default => 'general',
         };
     }

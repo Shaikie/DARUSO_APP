@@ -216,6 +216,26 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Payment confirmations submitted by this student.
+     *
+     * @return HasMany<PaymentSubmission, $this>
+     */
+    public function paymentSubmissions(): HasMany
+    {
+        return $this->hasMany(PaymentSubmission::class);
+    }
+
+    /**
+     * Payment requests created by this leader.
+     *
+     * @return HasMany<PaymentRequest, $this>
+     */
+    public function paymentRequestsCreated(): HasMany
+    {
+        return $this->hasMany(PaymentRequest::class, 'created_by');
+    }
+
+    /**
      * @return HasMany<NotificationPreference, $this>
      */
     public function notificationPreferences(): HasMany

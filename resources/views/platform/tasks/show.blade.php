@@ -1,0 +1,6 @@
+<x-app-layout>
+@section('title',$task->title) @section('heading',$task->title) @section('subheading','Assigned by '.$task->assigner?->name.' to '.$task->assignee?->name)
+<div class="daruso-panel p-4"><div class="d-flex justify-content-between"><span class="badge text-bg-light">{{ $task->status->label() }}</span><span class="badge text-bg-light">{{ $task->priority->label() }}</span></div><p class="mt-3">{{ $task->description }}</p><p class="small text-muted">Due: {{ $task->due_date?->format('d M Y') ?? 'No due date' }}</p>
+<form method="POST" action="{{ route('leader.tasks.status',$task) }}" class="row g-2 mt-3">@csrf @method('PATCH')<div class="col-md-5"><select class="form-select" name="status">@foreach(\App\Enums\TaskStatus::cases() as $status)<option value="{{ $status->value }}" @selected($task->status===$status)>{{ $status->label() }}</option>@endforeach</select></div><div class="col-md-3"><button class="btn btn-primary">Update progress</button></div></form>
+<a href="{{ route('leader.tasks.index') }}" class="btn btn-light mt-3">Back to tasks</a></div>
+</x-app-layout>

@@ -45,6 +45,10 @@ class FeedbackService
 
     public function respond(Feedback $feedback, User $responder, string $response, FeedbackStatus $status, ?Request $request = null): Feedback
     {
+        if (in_array($feedback->status, [FeedbackStatus::Resolved, FeedbackStatus::Closed], true)) {
+            throw new \DomainException('Resolved or closed feedback cannot be responded to again.');
+        }
+
         $old = $feedback->status->value;
 
         DB::transaction(function () use ($feedback, $responder, $response, $status, $old, $request): void {

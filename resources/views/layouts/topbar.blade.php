@@ -16,6 +16,14 @@
     </div>
 
     <div class="daruso-topbar-actions">
+        <form method="GET" action="{{ route('search') }}" class="d-none d-md-flex align-items-center">
+            <label class="visually-hidden" for="daruso-global-search">Search DARUSO</label>
+            <div class="input-group input-group-sm">
+                <span class="input-group-text border-end-0"><i class="bi bi-search"></i></span>
+                <input id="daruso-global-search" type="search" name="q" value="{{ request('q') }}" class="form-control border-start-0" placeholder="Search DARUSO..." style="width:190px">
+            </div>
+        </form>
+        <a href="{{ route('notification-preferences.edit') }}" class="daruso-icon-button" aria-label="Notification preferences"><i class="bi bi-sliders"></i></a>
         <a href="{{ $notificationsRoute }}" class="daruso-icon-button position-relative" aria-label="Notifications">
             <i class="bi bi-bell"></i>
             @if ($unreadCount > 0)

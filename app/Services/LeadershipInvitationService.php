@@ -51,7 +51,24 @@ class LeadershipInvitationService
             throw new \DomainException('Only leadership roles can be invited.');
         }
 
+        $inviteeEmail = mb_strtolower(trim((string) ($data['email'] ?? '')));
+        $invitee = User::query()->whereRaw('LOWER(email) = ?', [$inviteeEmail])->first();
+
+        if ($invitee === null || ! $invitee->isStudent() || ! $invitee->isVerifiedStudent() || ! $invitee->isActiveAccount()) {
+            throw new \DomainException('Leadership invitations can only be sent to an existing verified, active student account.');
+        }
+
         $this->assertCanGrant($inviter, $role);
+
+        if (! $inviter->isAdministrator() && ! $inviter->hasRole(RoleName::SecretaryGeneral)) {
+            $ministryId = $data['ministry_id'] ?? null;
+
+            if ($role !== RoleName::MinistryLeader
+                || $ministryId === null
+                || ! $inviter->ministryIds()->contains((int) $ministryId)) {
+                throw new \DomainException('You may only invite a ministry leader into a ministry you currently lead.');
+            }
+        }
 
         $token = Str::random(self::TOKEN_BYTES);
         $expiresAt = now()->addDays((int) ($data['expires_in_days'] ?? 7));
@@ -127,14 +144,20 @@ class LeadershipInvitationService
                 throw new \DomainException('This invitation was sent to a different email address.');
             }
 
-            if (! $user->canLogin()) {
-                throw new \DomainException('Your account is not able to accept invitations.');
+            if (! $user->canLogin() || ! $user->isActiveAccount() || ! $user->isVerifiedStudent()) {
+                throw new \DomainException('Only an active, verified student account can accept this leadership invitation.');
             }
 
             $role = Role::firstOrCreate(
                 ['name' => $locked->role_name],
                 ['description' => RoleName::tryFrom($locked->role_name)?->label() ?? $locked->role_name],
             );
+
+            $studentRoleId = Role::query()->where('name', RoleName::Student->value)->value('id');
+
+            if ($studentRoleId !== null) {
+                $user->roles()->detach($studentRoleId);
+            }
 
             $user->roles()->syncWithoutDetaching([$role->getKey()]);
             $user->forgetAuthorizationCache();

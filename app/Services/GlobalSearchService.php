@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\AnnouncementStatus;
 use App\Enums\PermissionName;
+use App\Enums\RoleName;
 use App\Models\Announcement;
 use App\Models\CalendarEntry;
 use App\Models\Complaint;
@@ -14,9 +15,11 @@ use App\Models\Handover;
 use App\Models\LeaderTask;
 use App\Models\Meeting;
 use App\Models\Poll;
+use App\Models\PaymentRequest;
 use App\Models\Post;
 use App\Models\StudentProfile;
 use App\Models\User;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 /**
@@ -58,7 +61,8 @@ class GlobalSearchService
             $this->feedback($user, $term),
             $this->tasks($user, $term),
             $this->handovers($user, $term),
-            $this->polls($term),
+            $this->polls($user, $term),
+            $this->payments($user, $term),
             $this->calendarEntries($user, $term),
         ]));
 
@@ -85,7 +89,7 @@ class GlobalSearchService
             ->map(fn (Announcement $item): array => [
                 'title' => $item->title,
                 'meta' => $item->published_at?->format('d M Y') ?? $item->status->label(),
-                'url' => route('student.announcements.show', $item),
+                'url' => route($user->isLeader() ? 'leader.announcements.show' : 'student.announcements.show', $item),
             ]);
 
         return $this->group('Announcements', 'megaphone', $results);
@@ -117,7 +121,7 @@ class GlobalSearchService
             ->map(fn (Document $item): array => [
                 'title' => $item->title,
                 'meta' => $item->category->label().' · v'.$item->version,
-                'url' => route('student.documents.show', $item),
+                'url' => route($user->isLeader() ? 'leader.documents.show' : 'student.documents.show', $item),
             ]);
 
         return $this->group('Documents', 'folder2-open', $results);
@@ -135,7 +139,7 @@ class GlobalSearchService
             ->map(fn (Event $item): array => [
                 'title' => $item->title,
                 'meta' => $item->event_date->format('d M Y').' · '.$item->venue,
-                'url' => route('student.events.show', $item),
+                'url' => route($user->isLeader() ? 'leader.events.show' : 'student.events.show', $item),
             ]);
 
         return $this->group('Events', 'calendar-check', $results);
@@ -153,7 +157,7 @@ class GlobalSearchService
             ->map(fn (Meeting $item): array => [
                 'title' => $item->title,
                 'meta' => $item->meeting_date->format('d M Y').' · '.$item->venue,
-                'url' => route('student.meetings.show', $item),
+                'url' => route($user->isLeader() ? 'leader.meetings.show' : 'student.meetings.show', $item),
             ]);
 
         return $this->group('Meetings', 'calendar-event', $results);
@@ -173,9 +177,21 @@ class GlobalSearchService
             ? ['registration_number', 'programme', 'college']
             : ['programme', 'college'];
 
+        $canSearchSensitive = $user->can('viewSensitive', new StudentProfile);
+
         $results = StudentProfile::query()
+            ->verified()
+            ->active()
             ->with('user')
-            ->search($term, $columns)
+            ->where(function ($query) use ($term, $canSearchSensitive): void {
+                $query->whereRaw('LOWER(programme) LIKE ?', ["%{$term}%"])
+                    ->orWhereHas('user', fn ($userQuery) => $userQuery->whereRaw('LOWER(users.name) LIKE ?', ["%{$term}%"]));
+
+                if ($canSearchSensitive) {
+                    $query->orWhereRaw('LOWER(registration_number) LIKE ?', ["%{$term}%"])
+                        ->orWhereHas('user', fn ($userQuery) => $userQuery->whereRaw('LOWER(users.email) LIKE ?', ["%{$term}%"]));
+                }
+            })
             ->limit(self::PER_GROUP)
             ->get()
             ->map(fn (StudentProfile $item): array => [
@@ -183,7 +199,7 @@ class GlobalSearchService
                 'meta' => $item->programme.' · Year '.$item->year_of_study,
                 'url' => $user->hasPermission(PermissionName::StudentView->value)
                     ? route('leader.students.show', $item)
-                    : route('student.directory.show', $item),
+                    : route('leader.directory.show', $item),
             ]);
 
         return $this->group('Students', 'people', $results);
@@ -215,7 +231,7 @@ class GlobalSearchService
                 'title' => $item->title,
                 'meta' => $item->status->label().' · '.$item->category,
                 'url' => $item->creator_id === $user->getKey()
-                    ? route('student.complaints.show', $item)
+                    ? route($user->isLeader() ? 'leader.complaints.show' : 'student.complaints.show', $item)
                     : route('leader.complaints.show', $item),
             ]);
 
@@ -250,7 +266,7 @@ class GlobalSearchService
      */
     private function tasks(User $user, string $term): ?array
     {
-        if (! $user->isLeader()) {
+        if (! $user->isLeader() || ! $user->hasPermission(PermissionName::TaskView->value)) {
             return null;
         }
 
@@ -275,7 +291,7 @@ class GlobalSearchService
      */
     private function handovers(User $user, string $term): ?array
     {
-        if (! $user->isLeader()) {
+        if (! $user->isLeader() || ! $user->hasPermission(PermissionName::HandoverManage->value)) {
             return null;
         }
 
@@ -284,7 +300,7 @@ class GlobalSearchService
             $inner->where('from_user_id', $user->getKey())
                 ->orWhere('to_user_id', $user->getKey());
 
-            if ($user->hasPermission(PermissionName::HandoverManage->value)) {
+            if ($user->isAdministrator() || $user->hasRole(RoleName::SecretaryGeneral)) {
                 $inner->orWhereRaw('1 = 1');
             }
         });
@@ -302,17 +318,51 @@ class GlobalSearchService
     /**
      * @return array{label: string, icon: string, results: array<int, array{title: string, meta: string, url: string}>}|null
      */
-    private function polls(string $term): ?array
+    private function polls(User $user, string $term): ?array
     {
         $results = Poll::query()->visible()->search($term, ['title', 'description'])
             ->latest()->limit(self::PER_GROUP)->get()
             ->map(fn (Poll $item): array => [
                 'title' => $item->title,
                 'meta' => $item->status->label().' · '.($item->ends_at?->diffForHumans() ?? 'No deadline'),
-                'url' => route('student.polls.show', $item),
+                'url' => $user->isLeader() ? route('leader.polls.show', $item) : route('student.polls.show', $item),
             ]);
 
         return $this->group('Polls', 'bar-chart', $results);
+    }
+
+    /**
+     * Payment search is scoped to the signed-in student's eligible requests or
+     * the payment manager's private administration area.
+     *
+     * @return array{label: string, icon: string, results: array<int, array{title: string, meta: string, url: string}>}|null
+     */
+    private function payments(User $user, string $term): ?array
+    {
+        if ($user->hasPermission(PermissionName::PaymentManage->value)) {
+            $results = PaymentRequest::query()->search($term, ['title', 'description'])
+                ->latest()->limit(self::PER_GROUP)->get()
+                ->map(fn (PaymentRequest $item): array => [
+                    'title' => $item->title,
+                    'meta' => 'Payment request · TZS '.number_format((float) $item->amount, 2),
+                    'url' => route('leader.payments.show', $item),
+                ]);
+        } elseif ($user->canParticipate() && $user->studentProfile !== null) {
+            $results = PaymentRequest::query()
+                ->whereIn('status', ['open', 'closed'])
+                ->search($term, ['title', 'description'])
+                ->latest()->limit(self::PER_GROUP)->get()
+                ->filter(fn (PaymentRequest $item): bool => $item->matchesStudent($user->studentProfile))
+                ->map(fn (PaymentRequest $item): array => [
+                    'title' => $item->title,
+                    'meta' => 'Payment request · TZS '.number_format((float) $item->amount, 2),
+                    'url' => route('student.payments.show', $item),
+                ]);
+        } else {
+            return null;
+        }
+
+        return $this->group('Payments', 'wallet2', $results);
     }
 
     /**
@@ -339,14 +389,14 @@ class GlobalSearchService
             ->map(fn (CalendarEntry $item): array => [
                 'title' => $item->title,
                 'meta' => $item->start_date->format('d M Y').' · '.$item->type->label(),
-                'url' => route('student.calendar.index'),
+                'url' => route($user->isLeader() ? 'leader.calendar.index' : 'student.calendar.index'),
             ]);
 
         return $this->group('Calendar', 'calendar3', $results);
     }
 
     /**
-     * @param  \Illuminate\Support\Collection<int, array{title: string, meta: string, url: string}>  $results
+     * @param  Collection<int, array{title: string, meta: string, url: string}>  $results
      * @return array{label: string, icon: string, results: array<int, array{title: string, meta: string, url: string}>}|null
      */
     private function group(string $label, string $icon, $results): ?array

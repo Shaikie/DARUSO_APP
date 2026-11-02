@@ -1,0 +1,6 @@
+@php($heading = 'Leadership tasks')
+@php($description = 'Tasks assigned to you and tasks you have delegated.')
+@php($detailRoute = 'leader.tasks.show')
+@php($createRoute = 'leader.tasks.create')
+@php($createLabel = 'Assign task')
+@include('platform.partials.list')

@@ -1,0 +1,6 @@
+@php($heading = 'Ministry activity reports')
+@php($description = 'Prepare periodic ministry reports and review submissions.')
+@php($detailRoute = 'leader.activity-reports.show')
+@php($createRoute = 'leader.activity-reports.create')
+@php($createLabel = 'New report')
+@include('platform.partials.list')

@@ -69,6 +69,7 @@ enum PermissionName: string
     case HandoverManage = 'handover.manage';
     case ActivityReportSubmit = 'activity_report.submit';
     case ActivityReportReview = 'activity_report.review';
+    case PaymentManage = 'payment.manage';
     case CalendarManage = 'calendar.manage';
     case PostReportManage = 'post.report_manage';
 

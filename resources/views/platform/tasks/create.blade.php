@@ -1,0 +1,10 @@
+<x-app-layout>
+@section('title','Assign task') @section('heading','Assign a leadership task') @section('subheading','Delegate work to a current leadership account and track progress.')
+<div class="daruso-panel p-4"><form method="POST" action="{{ route('leader.tasks.store') }}">@csrf
+<label class="form-label">Task title</label><input class="form-control mb-3" name="title" required maxlength="180">
+<label class="form-label">Description</label><textarea class="form-control mb-3" name="description" rows="4"></textarea>
+<label class="form-label">Assign to</label><select class="form-select mb-3" name="assigned_to" required><option value="">Select leader</option>@foreach($leaders as $leader)<option value="{{ $leader->id }}">{{ $leader->name }} · {{ $leader->email }}</option>@endforeach</select>
+<div class="row g-3"><div class="col-md-4"><label class="form-label">Priority</label><select class="form-select" name="priority"><option value="normal">Normal</option><option value="low">Low</option><option value="high">High</option><option value="urgent">Urgent</option></select></div><div class="col-md-4"><label class="form-label">Due date</label><input class="form-control" type="date" name="due_date"></div><div class="col-md-4"><label class="form-label">Ministry</label><select class="form-select" name="ministry_id"><option value="">None</option>@foreach($ministries as $ministry)<option value="{{ $ministry->id }}">{{ $ministry->name }}</option>@endforeach</select></div></div>
+<div class="mt-3"><label class="form-label">Committee</label><select class="form-select" name="committee_id"><option value="">None</option>@foreach($committees as $committee)<option value="{{ $committee->id }}">{{ $committee->name }}</option>@endforeach</select></div>
+<button class="btn btn-primary mt-3">Assign task</button> <a href="{{ route('leader.tasks.index') }}" class="btn btn-light mt-3">Cancel</a>
+</form></div></x-app-layout>
