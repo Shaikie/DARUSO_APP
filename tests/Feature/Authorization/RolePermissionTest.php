@@ -5,6 +5,8 @@ namespace Tests\Feature\Authorization;
 use App\Enums\PermissionName;
 use App\Enums\RoleName;
 use App\Models\AuditLog;
+use App\Models\Permission;
+use App\Models\Role;
 use App\Policies\AnnouncementPolicy;
 use App\Policies\AuditLogPolicy;
 use App\Policies\ComplaintPolicy;
@@ -30,6 +32,28 @@ class RolePermissionTest extends TestCase
 
         $this->assertFalse($student->hasPermission(PermissionName::AnnouncementCreate->value));
         $this->assertTrue($leader->hasPermission(PermissionName::AnnouncementCreate->value));
+    }
+
+    public function test_permissions_are_resolved_through_the_user_role_pivot_not_matching_ids(): void
+    {
+        $user = \App\Models\User::factory()->create();
+
+        // Deliberately make the role ID different from the user's ID. A direct
+        // user-to-role_permissions join incorrectly assumes these IDs match.
+        Role::create(['name' => 'unrelated_role', 'description' => 'Unrelated role']);
+        $role = Role::create(['name' => 'special_role', 'description' => 'Special role']);
+        $permission = Permission::create([
+            'name' => 'special.access',
+            'description' => 'Special access permission',
+        ]);
+
+        $role->permissions()->attach($permission);
+        $user->roles()->attach($role);
+
+        $freshUser = $user->fresh();
+
+        $this->assertTrue($freshUser->hasPermission('special.access'));
+        $this->assertSame(1, $freshUser->permissions()->count());
     }
 
     public function test_gates_mirror_permission_checks(): void

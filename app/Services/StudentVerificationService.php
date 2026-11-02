@@ -134,8 +134,10 @@ class StudentVerificationService
                 'status_changed_at' => now(),
             ]);
 
-            if (! $status->canLogin()) {
-                DB::table('sessions')->where('user_id', $target->getKey())->delete();
+            if (! $status->canLogin() && config('session.driver') === 'database') {
+                DB::table(config('session.table', 'sessions'))
+                    ->where('user_id', $target->getKey())
+                    ->delete();
             }
         });
 

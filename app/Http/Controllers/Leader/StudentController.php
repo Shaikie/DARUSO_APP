@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Leader;
 
+use App\Enums\AccountStatus;
 use App\Enums\StudentStatus;
 use App\Enums\VerificationStatus;
 use App\Http\Controllers\Controller;
@@ -93,6 +94,7 @@ class StudentController extends Controller
                 // No shared/default password. The student receives a one-time
                 // password-reset link and must establish their own credential.
                 'password' => Str::random(64),
+                'account_status' => AccountStatus::Pending,
             ]);
 
             $profile = $user->studentProfile()->create([

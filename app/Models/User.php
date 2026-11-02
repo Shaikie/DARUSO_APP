@@ -70,28 +70,19 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Permissions granted through any of the user's roles.
      *
-     * @return BelongsToMany<Permission, $this>
-     */
-    /**
-     * Permissions granted through any of the user's roles.
+     * This is a query rather than a direct belongs-to-many relation because
+     * permissions are reached through both user_roles and role_permissions.
      *
-     * Resolved with a subquery rather than a join: a join would emit one row per
-     * role/permission pair, which both duplicates rows and makes `exists()`
-     * unreliable.
-     *
-     * @return BelongsToMany<Permission, $this>
+     * @return Builder<Permission>
      */
-    public function permissions(): BelongsToMany
+    public function permissions(): Builder
     {
-        return $this->belongsToMany(
-            Permission::class,
-            'role_permissions',
-            'role_id',
-            'permission_id'
-        )->whereIn(
-            'role_permissions.role_id',
-            $this->roles()->select('roles.id')
-        );
+        return Permission::query()
+            ->join('role_permissions', 'permissions.id', '=', 'role_permissions.permission_id')
+            ->join('user_roles', 'user_roles.role_id', '=', 'role_permissions.role_id')
+            ->where('user_roles.user_id', $this->getKey())
+            ->select('permissions.*')
+            ->distinct();
     }
 
     /**
