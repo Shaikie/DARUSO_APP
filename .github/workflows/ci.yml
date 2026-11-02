@@ -55,7 +55,7 @@ jobs:
 
       - name: Check PHP formatting
         run: >-
-          vendor/bin/pint --test
+          vendor/bin/pint --test --diff
           app/Enums/StudentStatus.php
           app/Enums/PermissionName.php
           app/Enums/PaymentRequestStatus.php
