@@ -53,60 +53,14 @@ jobs:
       - name: Build frontend assets
         run: npm run build
 
+      - name: Preview PHP formatting corrections
+        run: |
+          vendor/bin/pint app/Enums/StudentStatus.php app/Enums/PermissionName.php app/Enums/PaymentRequestStatus.php app/Enums/PaymentSubmissionStatus.php app/Http/Controllers/PlatformController.php app/Http/Controllers/PaymentController.php app/Http/Controllers/Leader/StudentController.php app/Models/PaymentRequest.php app/Models/PaymentSubmission.php app/Mail/NotificationMail.php app/Services/NotificationDispatcher.php app/Services/NotificationPreferenceService.php app/Services/GlobalSearchService.php app/Services/CalendarService.php app/Services/PollService.php app/Services/FeedbackService.php app/Services/ActivityReportService.php app/Services/LeadershipInvitationService.php app/Services/PaymentRequestService.php app/Services/StudentVerificationService.php database/migrations/2026_11_02_000001_create_payment_requests_and_submissions.php database/seeders/RoleSeeder.php routes/web.php tests/Feature/PlatformFeaturesTest.php tests/Feature/PrivatePaymentWorkflowTest.php app/Http/Controllers/Leader/StudentController.php app/Http/Controllers/Leader/DashboardController.php app/Http/Controllers/ProfileController.php app/Http/Controllers/StudentProfileController.php app/Http/Middleware/EnsureActiveStudent.php app/Http/Middleware/EnsureActiveAccount.php app/Http/Middleware/EnsureLeader.php app/Http/Requests/StoreStudentProfileRequest.php app/Models/User.php database/factories/UserFactory.php bootstrap/app.php database/migrations/2026_11_01_120000_add_pending_student_verification_status.php routes/auth.php app/Services/StudentVerificationService.php app/Http/Requests/Auth/LoginRequest.php app/Http/Controllers/Auth/RegisteredUserController.php app/Http/Controllers/Auth/VerifyEmailController.php tests/Feature/Auth/AuthenticationTest.php tests/Feature/Auth/EmailVerificationTest.php tests/Feature/Auth/RegistrationTest.php tests/Feature/LeadershipAccessTest.php tests/Feature/Authorization/RolePermissionTest.php tests/Feature/AccountLifecycleTest.php tests/Feature/MeetingEventTest.php tests/Feature/ProfileTest.php tests/Feature/StudentVerificationTest.php
+          git diff -- app/Enums/StudentStatus.php app/Enums/PermissionName.php app/Enums/PaymentRequestStatus.php app/Enums/PaymentSubmissionStatus.php app/Http/Controllers/PlatformController.php app/Http/Controllers/PaymentController.php app/Http/Controllers/Leader/StudentController.php app/Models/PaymentRequest.php app/Models/PaymentSubmission.php app/Mail/NotificationMail.php app/Services/NotificationDispatcher.php app/Services/NotificationPreferenceService.php app/Services/GlobalSearchService.php app/Services/CalendarService.php app/Services/PollService.php app/Services/FeedbackService.php app/Services/ActivityReportService.php app/Services/LeadershipInvitationService.php app/Services/PaymentRequestService.php app/Services/StudentVerificationService.php database/migrations/2026_11_02_000001_create_payment_requests_and_submissions.php database/seeders/RoleSeeder.php routes/web.php tests/Feature/PlatformFeaturesTest.php tests/Feature/PrivatePaymentWorkflowTest.php app/Http/Controllers/Leader/StudentController.php app/Http/Controllers/Leader/DashboardController.php app/Http/Controllers/ProfileController.php app/Http/Controllers/StudentProfileController.php app/Http/Middleware/EnsureActiveStudent.php app/Http/Middleware/EnsureActiveAccount.php app/Http/Middleware/EnsureLeader.php app/Http/Requests/StoreStudentProfileRequest.php app/Models/User.php database/factories/UserFactory.php bootstrap/app.php database/migrations/2026_11_01_120000_add_pending_student_verification_status.php routes/auth.php app/Services/StudentVerificationService.php app/Http/Requests/Auth/LoginRequest.php app/Http/Controllers/Auth/RegisteredUserController.php app/Http/Controllers/Auth/VerifyEmailController.php tests/Feature/Auth/AuthenticationTest.php tests/Feature/Auth/EmailVerificationTest.php tests/Feature/Auth/RegistrationTest.php tests/Feature/LeadershipAccessTest.php tests/Feature/Authorization/RolePermissionTest.php tests/Feature/AccountLifecycleTest.php tests/Feature/MeetingEventTest.php tests/Feature/ProfileTest.php tests/Feature/StudentVerificationTest.php
+
       - name: Check PHP formatting
         run: >-
-          vendor/bin/pint --test --diff
-          app/Enums/StudentStatus.php
-          app/Enums/PermissionName.php
-          app/Enums/PaymentRequestStatus.php
-          app/Enums/PaymentSubmissionStatus.php
-          app/Http/Controllers/PlatformController.php
-          app/Http/Controllers/PaymentController.php
-          app/Http/Controllers/Leader/StudentController.php
-          app/Models/PaymentRequest.php
-          app/Models/PaymentSubmission.php
-          app/Mail/NotificationMail.php
-          app/Services/NotificationDispatcher.php
-          app/Services/NotificationPreferenceService.php
-          app/Services/GlobalSearchService.php
-          app/Services/CalendarService.php
-          app/Services/PollService.php
-          app/Services/FeedbackService.php
-          app/Services/ActivityReportService.php
-          app/Services/LeadershipInvitationService.php
-          app/Services/PaymentRequestService.php
-          app/Services/StudentVerificationService.php
-          database/migrations/2026_11_02_000001_create_payment_requests_and_submissions.php
-          database/seeders/RoleSeeder.php
-          routes/web.php
-          tests/Feature/PlatformFeaturesTest.php
-          tests/Feature/PrivatePaymentWorkflowTest.php
-          app/Http/Controllers/Leader/StudentController.php
-          app/Http/Controllers/Leader/DashboardController.php
-          app/Http/Controllers/ProfileController.php
-          app/Http/Controllers/StudentProfileController.php
-          app/Http/Middleware/EnsureActiveStudent.php
-          app/Http/Middleware/EnsureActiveAccount.php
-          app/Http/Middleware/EnsureLeader.php
-          app/Http/Requests/StoreStudentProfileRequest.php
-          app/Models/User.php
-          database/factories/UserFactory.php
-          bootstrap/app.php
-          database/migrations/2026_11_01_120000_add_pending_student_verification_status.php
-          routes/auth.php
-          app/Services/StudentVerificationService.php
-          app/Http/Requests/Auth/LoginRequest.php
-          app/Http/Controllers/Auth/RegisteredUserController.php
-          app/Http/Controllers/Auth/VerifyEmailController.php
-          tests/Feature/Auth/AuthenticationTest.php
-          tests/Feature/Auth/EmailVerificationTest.php
-          tests/Feature/Auth/RegistrationTest.php
-          tests/Feature/LeadershipAccessTest.php
-          tests/Feature/Authorization/RolePermissionTest.php
-          tests/Feature/AccountLifecycleTest.php
-          tests/Feature/MeetingEventTest.php
-          tests/Feature/ProfileTest.php
-          tests/Feature/StudentVerificationTest.php
+          vendor/bin/pint --test app/Enums/StudentStatus.php app/Enums/PermissionName.php app/Enums/PaymentRequestStatus.php app/Enums/PaymentSubmissionStatus.php app/Http/Controllers/PlatformController.php app/Http/Controllers/PaymentController.php app/Http/Controllers/Leader/StudentController.php app/Models/PaymentRequest.php app/Models/PaymentSubmission.php app/Mail/NotificationMail.php app/Services/NotificationDispatcher.php app/Services/NotificationPreferenceService.php app/Services/GlobalSearchService.php app/Services/CalendarService.php app/Services/PollService.php app/Services/FeedbackService.php app/Services/ActivityReportService.php app/Services/LeadershipInvitationService.php app/Services/PaymentRequestService.php app/Services/StudentVerificationService.php database/migrations/2026_11_02_000001_create_payment_requests_and_submissions.php database/seeders/RoleSeeder.php routes/web.php tests/Feature/PlatformFeaturesTest.php tests/Feature/PrivatePaymentWorkflowTest.php app/Http/Controllers/Leader/StudentController.php app/Http/Controllers/Leader/DashboardController.php app/Http/Controllers/ProfileController.php app/Http/Controllers/StudentProfileController.php app/Http/Middleware/EnsureActiveStudent.php app/Http/Middleware/EnsureActiveAccount.php app/Http/Middleware/EnsureLeader.php app/Http/Requests/StoreStudentProfileRequest.php app/Models/User.php database/factories/UserFactory.php bootstrap/app.php database/migrations/2026_11_01_120000_add_pending_student_verification_status.php routes/auth.php app/Services/StudentVerificationService.php app/Http/Requests/Auth/LoginRequest.php app/Http/Controllers/Auth/RegisteredUserController.php app/Http/Controllers/Auth/VerifyEmailController.php tests/Feature/Auth/AuthenticationTest.php tests/Feature/Auth/EmailVerificationTest.php tests/Feature/Auth/RegistrationTest.php tests/Feature/LeadershipAccessTest.php tests/Feature/Authorization/RolePermissionTest.php tests/Feature/AccountLifecycleTest.php tests/Feature/MeetingEventTest.php tests/Feature/ProfileTest.php tests/Feature/StudentVerificationTest.php
 
       - name: Run feature and unit tests
         run: php artisan test
