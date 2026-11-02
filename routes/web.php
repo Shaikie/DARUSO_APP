@@ -27,9 +27,9 @@ use App\Http\Controllers\Student\DocumentController as StudentDocumentController
 use App\Http\Controllers\Student\EventController as StudentEventController;
 use App\Http\Controllers\Student\MeetingController as StudentMeetingController;
 use App\Http\Controllers\Student\NotificationController as StudentNotificationController;
-use App\Http\Controllers\PostController;
-use App\Http\Controllers\PlatformController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PlatformController;
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\Student\RepresentativeController as StudentRepresentativeController;
 use App\Http\Controllers\StudentProfileController;
 use App\Enums\RoleName;
@@ -78,13 +78,13 @@ Route::middleware(['auth', 'verified', 'account.active'])->group(function (): vo
     Route::prefix('student')->name('student.')->group(function (): void {
         // The community feed is available to authenticated users, including leaders.
         // Student-service records remain protected by the active-student gate.
-            Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
-            Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
-            Route::post('/posts/{post}/like', [PostController::class, 'like'])->name('posts.like');
-            Route::post('/posts/{post}/react', [PostController::class, 'react'])->name('posts.react');
-            Route::post('/posts/{post}/comments', [PostController::class, 'comment'])->name('posts.comments.store');
-            Route::delete('/posts/{post}/comments/{comment}', [PostController::class, 'deleteComment'])->name('posts.comments.destroy');
-            Route::post('/posts/{post}/share', [PostController::class, 'share'])->name('posts.share');
+        Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
+        Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
+        Route::post('/posts/{post}/like', [PostController::class, 'like'])->name('posts.like');
+        Route::post('/posts/{post}/react', [PostController::class, 'react'])->name('posts.react');
+        Route::post('/posts/{post}/comments', [PostController::class, 'comment'])->name('posts.comments.store');
+        Route::delete('/posts/{post}/comments/{comment}', [PostController::class, 'deleteComment'])->name('posts.comments.destroy');
+        Route::post('/posts/{post}/share', [PostController::class, 'share'])->name('posts.share');
 
         Route::middleware('student.active')->group(function (): void {
             Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
