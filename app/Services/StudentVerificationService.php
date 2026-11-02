@@ -43,7 +43,7 @@ class StudentVerificationService
             $oldStatus = $profile->exists ? $profile->verification_status?->value : null;
 
             $profile->fill($academic);
-            $profile->status = StudentStatus::Pending;
+            $profile->status = StudentStatus::PendingVerification;
             $profile->verification_status = VerificationStatus::Pending;
             $profile->submitted_at = now();
             $profile->verified_at = null;
