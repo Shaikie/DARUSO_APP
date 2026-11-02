@@ -34,8 +34,10 @@ document.querySelectorAll('#sidebar-wrapper a').forEach((link) => {
 });
 
 document.addEventListener('submit', (event) => {
-    const form = event.target;
-    if (form.dataset?.confirm && !window.confirm(form.dataset.confirm)) {
+    if (!(event.target instanceof HTMLFormElement)) return;
+
+    const confirmationMessage = event.target.dataset.confirm;
+    if (confirmationMessage && !window.confirm(confirmationMessage)) {
         event.preventDefault();
     }
 });
