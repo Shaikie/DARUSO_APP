@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -389,14 +390,14 @@ class User extends Authenticatable implements MustVerifyEmail
         $termBound = $this->hasAnyRole([RoleName::MinistryLeader, RoleName::CommitteeLeader])
             || $this->leaderProfile()->exists();
 
-        if (! $termBound) {
+        if (!$termBound) {
             return true;
         }
 
         $hasAssignments = LeaderAssignment::query()->where('user_id', $this->getKey())->exists();
         $hasMemberships = CommitteeMember::query()->where('user_id', $this->getKey())->exists();
 
-        if (! $hasAssignments && ! $hasMemberships) {
+        if (!$hasAssignments && !$hasMemberships) {
             return true;
         }
 
@@ -425,7 +426,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function initials(): string
     {
-        return \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($this->name, 0, 1));
+        return Str::upper(Str::substr($this->name, 0, 1));
     }
 
     /**
