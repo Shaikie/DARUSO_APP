@@ -112,6 +112,7 @@ class PlatformController extends Controller
     public function feedbackShow(Request $request, Feedback $feedback): View
     {
         abort_unless($feedback->user_id === $request->user()->getKey(), 403);
+
         return view('platform.feedback.show', ['item' => $feedback->load(['author', 'responder'])]);
     }
 
@@ -393,6 +394,7 @@ class PlatformController extends Controller
     {
         $user = $this->requirePermission($request, 'task.view');
         abort_unless($task->assigned_to === $user->getKey() || $task->assigned_by === $user->getKey() || $user->hasPermission('task.manage'), 403);
+
         return view('platform.tasks.show', ['task' => $task->load(['assignee', 'assigner', 'ministry', 'committee'])]);
     }
 
@@ -463,6 +465,7 @@ class PlatformController extends Controller
     {
         $user = $this->requirePermission($request, 'handover.manage');
         abort_unless($handover->from_user_id === $user->getKey() || $handover->to_user_id === $user->getKey() || $user->isAdministrator() || $user->hasRole(RoleName::SecretaryGeneral), 403);
+
         return view('platform.handovers.show', ['handover' => $handover->load(['fromUser', 'toUser', 'ministry', 'committee', 'term'])]);
     }
 
@@ -588,6 +591,7 @@ class PlatformController extends Controller
     {
         $user = $request->user();
         abort_unless($user->hasPermission('activity_report.review') || ($report->submitted_by === $user->getKey() && $user->hasPermission('activity_report.submit')), 403);
+
         return view('platform.activity-reports.show', ['report' => $report->load(['ministry', 'term', 'submitter', 'reviewer'])]);
     }
 
@@ -757,6 +761,7 @@ class PlatformController extends Controller
     {
         $this->requirePermission($request, 'student.directory');
         abort_unless($profile->isVerified() && $profile->status->value === 'active', 404);
+
         return view('platform.directory.show', compact('profile'));
     }
 }
