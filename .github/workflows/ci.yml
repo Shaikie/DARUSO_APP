@@ -76,6 +76,8 @@ jobs:
           tests/Feature/Auth/EmailVerificationTest.php
           tests/Feature/Auth/RegistrationTest.php
           tests/Feature/LeadershipAccessTest.php
+          tests/Feature/Authorization/RolePermissionTest.php
+          tests/Feature/AccountLifecycleTest.php
           tests/Feature/MeetingEventTest.php
           tests/Feature/ProfileTest.php
           tests/Feature/StudentVerificationTest.php

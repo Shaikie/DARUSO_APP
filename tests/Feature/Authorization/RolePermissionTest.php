@@ -7,6 +7,7 @@ use App\Enums\RoleName;
 use App\Models\AuditLog;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Models\User;
 use App\Policies\AnnouncementPolicy;
 use App\Policies\AuditLogPolicy;
 use App\Policies\ComplaintPolicy;
@@ -36,7 +37,7 @@ class RolePermissionTest extends TestCase
 
     public function test_permissions_are_resolved_through_the_user_role_pivot_not_matching_ids(): void
     {
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
 
         // Deliberately make the role ID different from the user's ID. A direct
         // user-to-role_permissions join incorrectly assumes these IDs match.
