@@ -30,4 +30,21 @@ enum AuditAction: string
     case PasswordChanged = 'password_changed';
     case DocumentUploaded = 'document_uploaded';
     case NotificationSent = 'notification_sent';
+    case Invited = 'invited';
+    case Accepted = 'accepted';
+    case Declined = 'declined';
+    case Revoked = 'revoked';
+    case Verified = 'verified';
+    case Rejected = 'rejected';
+    case Suspended = 'suspended';
+    case Reactivated = 'reactivated';
+    case Voted = 'voted';
+    case Completed = 'completed';
+    case HandedOver = 'handed_over';
+    case Acknowledged = 'acknowledged';
+    case Exported = 'exported';
+    case Reported = 'reported';
+    case Moderated = 'moderated';
+    case Downloaded = 'downloaded';
+    case Viewed = 'viewed';
 }

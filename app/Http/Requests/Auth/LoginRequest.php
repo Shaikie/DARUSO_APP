@@ -50,6 +50,16 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        $user = Auth::user();
+
+        if ($user !== null && ! $user->canLogin()) {
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'email' => 'This account is suspended or rejected. Contact the DARUSO office for assistance.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\DocumentCategory;
 use App\Enums\DocumentVisibility;
 use App\Models\Concerns\Searchable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -76,6 +77,54 @@ class Document extends Model
     public function fileExists(): bool
     {
         return Storage::disk(config('daruso.uploads.disk'))->exists($this->file_path);
+    }
+
+    /**
+     * Restrict a query to the documents a user may read.
+     *
+     * This is the SQL mirror of DocumentPolicy::view. Keeping both in one model
+     * prevents the listing and the policy from drifting apart.
+     *
+     * @param  Builder<$this>  $query
+     * @return Builder<$this>
+     */
+    public function scopeVisibleTo(Builder $query, User $user): Builder
+    {
+        $ministryIds = $user->ministryIds()->all();
+        $committeeIds = $user->committeeIds()->all();
+        $isLeader = $user->isLeader();
+
+        return $query->where(function (Builder $inner) use ($user, $ministryIds, $committeeIds, $isLeader): void {
+            $inner->whereIn('visibility', [
+                DocumentVisibility::Public->value,
+                DocumentVisibility::Students->value,
+            ]);
+
+            if ($isLeader) {
+                $inner->orWhere('visibility', DocumentVisibility::Leaders->value);
+            }
+
+            if ($ministryIds !== []) {
+                $inner->orWhere(function (Builder $ministry) use ($ministryIds): void {
+                    $ministry->where('visibility', DocumentVisibility::Ministry->value)
+                        ->whereIn('ministry_id', $ministryIds);
+                });
+            }
+
+            if ($committeeIds !== []) {
+                $inner->orWhere(function (Builder $committee) use ($committeeIds): void {
+                    $committee->where('visibility', DocumentVisibility::Committee->value)
+                        ->whereIn('committee_id', $committeeIds);
+                });
+            }
+
+            $inner->orWhere(function (Builder $group) use ($user): void {
+                $group->where('visibility', DocumentVisibility::Group->value)
+                    ->where('group_id', $user->getKey());
+            });
+
+            $inner->orWhere('uploader_id', $user->getKey());
+        });
     }
 
     /**

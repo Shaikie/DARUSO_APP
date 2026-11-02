@@ -39,7 +39,7 @@ class DocumentController extends Controller
         $documents = Document::query()
             ->with(['uploader', 'ministry', 'committee'])
             // Visibility is applied in SQL so unrelated documents are never loaded.
-            ->tap(fn ($query) => $this->scopeToVisible($query, $request->user()))
+            ->visibleTo($request->user())
             ->when($request->filled('category'), fn ($query) => $query->where('category', $request->string('category')))
             ->search($request->input('search'), ['title', 'description'])
             ->latest()
@@ -217,50 +217,5 @@ class DocumentController extends Controller
         return redirect()
             ->route('leader.documents.index')
             ->with('success', 'Document deleted.');
-    }
-
-    /**
-     * Restrict a document query to what the user is permitted to see.
-     *
-     * Mirrors DocumentPolicy::view in SQL so inaccessible rows are never loaded.
-     */
-    private function scopeToVisible(Builder $query, User $user): void
-    {
-        $ministryIds = $user->ministryIds()->all();
-        $committeeIds = $user->committeeIds()->all();
-        $isLeader = $user->isLeader();
-
-        $query->where(function (Builder $inner) use ($user, $ministryIds, $committeeIds, $isLeader): void {
-            $inner->whereIn('visibility', [
-                DocumentVisibility::Public->value,
-                DocumentVisibility::Students->value,
-            ]);
-
-            if ($isLeader) {
-                $inner->orWhere('visibility', DocumentVisibility::Leaders->value);
-            }
-
-            if ($ministryIds !== []) {
-                $inner->orWhere(function (Builder $ministry) use ($ministryIds): void {
-                    $ministry->where('visibility', DocumentVisibility::Ministry->value)
-                        ->whereIn('ministry_id', $ministryIds);
-                });
-            }
-
-            if ($committeeIds !== []) {
-                $inner->orWhere(function (Builder $committee) use ($committeeIds): void {
-                    $committee->where('visibility', DocumentVisibility::Committee->value)
-                        ->whereIn('committee_id', $committeeIds);
-                });
-            }
-
-            $inner->orWhere(function (Builder $group) use ($user): void {
-                $group->where('visibility', DocumentVisibility::Group->value)
-                    ->where('group_id', $user->getKey());
-            });
-
-            // Uploaders always retain access to their own documents.
-            $inner->orWhere('uploader_id', $user->getKey());
-        });
     }
 }

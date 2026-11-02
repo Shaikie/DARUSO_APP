@@ -3,11 +3,8 @@
 namespace App\Http\Controllers\Student;
 
 use App\Enums\DocumentCategory;
-use App\Enums\DocumentVisibility;
 use App\Http\Controllers\Controller;
 use App\Models\Document;
-use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -27,7 +24,7 @@ class DocumentController extends Controller
 
         $documents = Document::query()
             ->with('uploader')
-            ->tap(fn (Builder $query) => $this->scopeToVisible($query, $user))
+            ->visibleTo($user)
             ->when($request->filled('category'), fn ($query) => $query->where('category', $request->string('category')))
             ->search($request->input('search'), ['title', 'description'])
             ->latest()
@@ -65,24 +62,5 @@ class DocumentController extends Controller
         return $disk->download($document->file_path, $document->file_name, [
             'Content-Type' => 'application/octet-stream',
         ]);
-    }
-
-    /**
-     * Mirrors DocumentPolicy::view in SQL.
-     */
-    private function scopeToVisible(Builder $query, User $user): void
-    {
-        $query->where(function (Builder $inner) use ($user): void {
-            $inner->whereIn('visibility', [
-                DocumentVisibility::Public->value,
-                DocumentVisibility::Students->value,
-            ]);
-
-            if ($user->isLeader()) {
-                $inner->orWhere('visibility', DocumentVisibility::Leaders->value);
-            }
-
-            $inner->orWhere('uploader_id', $user->getKey());
-        });
     }
 }

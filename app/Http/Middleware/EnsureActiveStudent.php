@@ -17,9 +17,10 @@ class EnsureActiveStudent
             abort(403, 'An active student record is required to access this service.');
         }
 
-        if ($profile->status !== StudentStatus::Active) {
+        if ($profile->status !== StudentStatus::Active || ! $profile->isVerified()) {
             return response()->view('student.pending-verification', [
                 'status' => $profile->status,
+                'verificationStatus' => $profile->verification_status,
             ]);
         }
 
