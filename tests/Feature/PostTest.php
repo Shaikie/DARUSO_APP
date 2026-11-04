@@ -3,6 +3,7 @@ namespace Tests\Feature;
 use App\Enums\PermissionName;
 use App\Models\Permission;
 use App\Models\Post;
+use App\Models\PostComment;
 use App\Models\Role;
 use App\Models\StudentProfile;
 use App\Models\User;
@@ -36,6 +37,14 @@ class PostTest extends TestCase {
   $this->assertDatabaseHas('post_comments',['post_id'=>$post->id,'user_id'=>$student->id]);
   $this->actingAs($student)->post(route('student.posts.share',$post))->assertRedirect();
   $this->assertDatabaseHas('posts',['id'=>$post->id,'share_count'=>1]);
+ }
+ public function test_hidden_comments_are_not_rendered_in_public_post_view(): void {
+  $leader=$this->makeLeader(); $student=$this->makeStudent();
+  $post=Post::create(['author_id'=>$leader->id,'title'=>'Community story','content'=>'A published community story.','is_published'=>true,'published_at'=>now()]);
+  PostComment::create(['post_id'=>$post->id,'user_id'=>$student->id,'content'=>'Visible comment.']);
+  PostComment::create(['post_id'=>$post->id,'user_id'=>$student->id,'content'=>'Hidden comment.','is_hidden'=>true]);
+  $this->actingAs($student)->get(route('student.posts.show',$post))
+   ->assertOk()->assertSee('Visible comment.')->assertDontSee('Hidden comment.');
  }
  public function test_unpublished_post_is_not_visible_to_students(): void {
   $leader=$this->makeLeader(); $student=$this->makeStudent();

@@ -50,5 +50,6 @@
             <div class="daruso-mobile-overlay" id="daruso-mobile-overlay"></div>
         @endauth
     </div>
+    @stack('scripts')
 </body>
 </html>
