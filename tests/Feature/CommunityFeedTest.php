@@ -34,6 +34,15 @@ class CommunityFeedTest extends TestCase
         $response->assertRedirect(route('leader.dashboard'));
     }
 
+    public function test_community_route_is_available_to_students_and_leaders(): void
+    {
+        $student = $this->student();
+        $leader = $this->userWithRole(\App\Enums\RoleName::MinistryLeader);
+
+        $this->actingAs($student)->get(route('community'))->assertOk()->assertSee('Community');
+        $this->actingAs($leader)->get(route('community'))->assertOk()->assertSee('Community');
+    }
+
     public function test_a_user_can_add_and_toggle_a_post_reaction(): void
     {
         $this->seed();

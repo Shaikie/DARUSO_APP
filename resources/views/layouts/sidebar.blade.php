@@ -4,7 +4,7 @@
 
 <aside class="daruso-sidebar" id="sidebar-wrapper" aria-label="Main navigation">
     <div class="daruso-brand">
-        <a href="{{ $isAdmin ? route('leader.dashboard') : route('student.posts.index') }}" class="daruso-brand-link">
+        <a href="{{ $isAdmin ? route('leader.dashboard') : route('community') }}" class="daruso-brand-link">
             <span class="daruso-brand-mark"><i class="bi bi-broadcast-pin"></i></span>
             <span>
                 <strong>DARUSO</strong>
@@ -30,7 +30,7 @@
         @if ($isLeader)
             @php($leaderLinks = [
                 ['leader.dashboard', 'leader.dashboard', 'speedometer2', 'Dashboard', null],
-                ['student.posts.index', 'student.posts.*', 'newspaper', 'Community', null],
+                ['community', 'community', 'newspaper', 'Community', null],
                 ['leader.announcements.index', 'leader.announcements.*', 'megaphone', 'Announcements', 'announcement.create'],
                 ['leader.notifications.index', 'leader.notifications.*', 'bell', 'Notifications', 'notification.create'],
                 ['leader.students.index', 'leader.students.*', 'people', 'Students', 'student.view'],
@@ -99,7 +99,7 @@
         @else
             @php($studentLinks = [
                 ['student.dashboard', 'student.dashboard', 'house', 'Home'],
-                ['student.posts.index', 'student.posts.*', 'newspaper', 'Community'],
+                ['community', 'community', 'newspaper', 'Community'],
                 ['student.announcements.index', 'student.announcements.*', 'megaphone', 'Announcements'],
                 ['student.notifications.index', 'student.notifications.*', 'bell', 'Notifications'],
                 ['student.events.index', 'student.events.*', 'calendar-check', 'Events'],

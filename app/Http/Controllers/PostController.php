@@ -20,6 +20,7 @@ class PostController extends Controller
 
     public function index(Request $request): View
     {
+        $this->authorize('viewAny', Post::class);
         $userId = $request->user()->getKey();
 
         $posts = Post::query()

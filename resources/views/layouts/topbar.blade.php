@@ -1,7 +1,7 @@
 @php($user = auth()->user())
 @php($unreadCount = $user->receivedNotifications()->whereNull('read_at')->count())
 @php($notificationsRoute = $user->isLeader() ? route('leader.notifications.index') : route('student.notifications.index'))
-@php($dashboardRoute = $user->hasRole(\App\Enums\RoleName::Administrator) ? route('leader.dashboard') : route('student.posts.index'))
+@php($dashboardRoute = $user->hasRole(\App\Enums\RoleName::Administrator) ? route('leader.dashboard') : route('community'))
 
 <header class="daruso-topbar">
     <div class="d-flex align-items-center gap-2 min-w-0">

@@ -65,6 +65,8 @@ Route::middleware(['auth', 'verified', 'account.active'])->group(function (): vo
         return redirect()->route('student.posts.index');
     })->name('dashboard');
 
+    Route::get('/community', [PostController::class, 'index'])->name('community');
+
     /*
     |--------------------------------------------------------------------------
     | Student area
