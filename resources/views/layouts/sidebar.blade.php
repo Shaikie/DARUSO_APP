@@ -49,13 +49,13 @@
 
             <div class="daruso-nav-label mt-3">Administration</div>
             @php($adminLinks = [
-                ['leader.ministries.index', 'leader.ministries.*', 'building', 'Ministries', null],
-                ['leader.committees.index', 'leader.committees.*', 'diagram-3', 'Committees', null],
-                ['leader.leadership.index', 'leader.leadership.*', 'person-badge', 'Leadership', null],
-                ['leader.reports.index', 'leader.reports.*', 'bar-chart', 'Reports', null],
-                ['leader.audit-logs.index', 'leader.audit-logs.*', 'journal-text', 'Audit logs', null],
-                ['leader.settings.index', 'leader.settings.*', 'gear', 'Settings', null],
-                ['leader.posts.index', 'leader.posts.*', 'pencil-square', 'Post management', null],
+                ['leader.ministries.index', 'leader.ministries.*', 'building', 'Ministries', 'ministry.manage'],
+                ['leader.committees.index', 'leader.committees.*', 'diagram-3', 'Committees', 'committee.manage'],
+                ['leader.leadership.index', 'leader.leadership.*', 'person-badge', 'Leadership', 'leader.manage'],
+                ['leader.reports.index', 'leader.reports.*', 'bar-chart', 'Reports', 'report.view'],
+                ['leader.audit-logs.index', 'leader.audit-logs.*', 'journal-text', 'Audit logs', 'audit.view'],
+                ['leader.settings.index', 'leader.settings.*', 'gear', 'Settings', 'system.settings'],
+                ['leader.posts.index', 'leader.posts.*', 'pencil-square', 'Post management', 'post.edit'],
                 ['leader.feedback.index', 'leader.feedback.*', 'chat-left-text', 'Student feedback', 'feedback.view'],
                 ['leader.polls.index', 'leader.polls.*', 'clipboard-data', 'Polls', 'poll.manage'],
                 ['leader.calendar.index', 'leader.calendar.*', 'calendar3', 'Calendar', 'calendar.manage'],

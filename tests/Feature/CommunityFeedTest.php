@@ -88,4 +88,18 @@ class CommunityFeedTest extends TestCase
             'type' => 'support',
         ]);
     }
+
+    public function test_a_user_has_at_most_one_reaction_per_post(): void
+    {
+        $this->seed();
+        $student = User::where('email', 'student@daruso.local')->firstOrFail();
+        $post = Post::query()->published()->firstOrFail();
+
+        $this->actingAs($student)->post(route('student.posts.react', $post), ['type' => 'love']);
+        $this->actingAs($student)->post(route('student.posts.react', $post), ['type' => 'insightful']);
+
+        $this->assertSame(1, PostReaction::where('post_id', $post->getKey())
+            ->where('user_id', $student->getKey())
+            ->count());
+    }
 }

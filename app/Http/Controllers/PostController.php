@@ -6,6 +6,7 @@ use App\Models\Post;
 use App\Models\PostComment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class PostController extends Controller
@@ -29,7 +30,7 @@ class PostController extends Controller
             ])
             ->withCount([
                 'likes',
-                'comments',
+                'comments' => fn ($query) => $query->visible(),
                 'reactions',
                 'reactions as love_reactions_count' => fn ($query) => $query->where('type', 'love'),
                 'reactions as celebrate_reactions_count' => fn ($query) => $query->where('type', 'celebrate'),
@@ -56,7 +57,7 @@ class PostController extends Controller
         $post->load([
             'author',
             'reactions' => fn ($query) => $query->where('user_id', $userId),
-            'comments' => fn ($query) => $query->with('user')->latest(),
+            'comments' => fn ($query) => $query->visible()->with('user')->latest(),
         ])->loadCount([
             'likes',
             'reactions',
@@ -78,15 +79,21 @@ class PostController extends Controller
         $this->authorize('like', $post);
         $userId = $request->user()->getKey();
 
-        if ($post->likes()->whereKey($userId)->exists()) {
-            $post->likes()->detach($userId);
+        $liked = DB::transaction(function () use ($post, $userId): bool {
+            $post->newQuery()->whereKey($post->getKey())->lockForUpdate()->firstOrFail();
 
-            return back()->with('success', 'Post unliked.');
-        }
+            if ($post->likes()->whereKey($userId)->exists()) {
+                $post->likes()->detach($userId);
 
-        $post->likes()->syncWithoutDetaching([$userId]);
+                return false;
+            }
 
-        return back()->with('success', 'Post liked.');
+            $post->likes()->syncWithoutDetaching([$userId]);
+
+            return true;
+        });
+
+        return back()->with('success', $liked ? 'Post liked.' : 'Post unliked.');
     }
 
     public function react(Request $request, Post $post): RedirectResponse
@@ -97,20 +104,28 @@ class PostController extends Controller
             'type' => ['required', 'string', 'in:love,celebrate,support,insightful'],
         ]);
 
-        $reaction = $post->reactions()->where('user_id', $request->user()->getKey())->first();
+        $reactionAdded = DB::transaction(function () use ($post, $request, $data): bool {
+            $post->newQuery()->whereKey($post->getKey())->lockForUpdate()->firstOrFail();
+            $reaction = $post->reactions()->where('user_id', $request->user()->getKey())->first();
 
-        if ($reaction?->type === $data['type']) {
-            $reaction->delete();
+            if ($reaction?->type === $data['type']) {
+                $reaction->delete();
 
-            return back()->with('success', 'Reaction removed.');
-        }
+                return false;
+            }
 
-        $post->reactions()->updateOrCreate(
-            ['user_id' => $request->user()->getKey()],
-            ['type' => $data['type']],
+            $post->reactions()->updateOrCreate(
+                ['user_id' => $request->user()->getKey()],
+                ['type' => $data['type']],
+            );
+
+            return true;
+        });
+
+        return back()->with(
+            'success',
+            $reactionAdded ? self::REACTIONS[$data['type']]['label'].' reaction added.' : 'Reaction removed.',
         );
-
-        return back()->with('success', self::REACTIONS[$data['type']]['label'].' reaction added.');
     }
 
     public function comment(Request $request, Post $post): RedirectResponse
